@@ -15,7 +15,7 @@ jobs:
       - name: Get Current Versions
         id: get_versions
         run: |
-          CURRENT_VERSIONS=$(yq e '.jobs.update-dockerfile.strategy.matrix.kicad_version' .github/workflows/update-kicad.yml | yq e '.[]' - | tr '\n' ' ')
+          CURRENT_VERSIONS=$(yq e '.jobs.update-dockerfile.strategy.matrix.kicad_version' .github/workflows/build-kicad-versions.yml | yq e '.[]' - | tr '\n' ' ')
           echo "Current versions: $CURRENT_VERSIONS"
           echo "current_versions=$CURRENT_VERSIONS" >> $GITHUB_ENV
 
@@ -46,7 +46,7 @@ jobs:
         if: env.new_versions != ''
         run: |
           UPDATED_VERSIONS=$(echo "${{ env.current_versions }} ${{ env.new_versions }}" | tr ' ' '\n' | sort -V | uniq | jq -R -s -c 'split("\n")[:-1]')
-          yq e -i '.jobs.update-dockerfile.strategy.matrix.kicad_version = '"$UPDATED_VERSIONS" .github/workflows/update-kicad.yml
+          yq e -i '.jobs.update-dockerfile.strategy.matrix.kicad_version = '"$UPDATED_VERSIONS" .github/workflows/build-kicad-versions.yml
 
       - name: Commit Changes
         if: env.new_versions != ''
@@ -54,7 +54,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git checkout -b update-kicad-versions
-          git add .github/workflows/update-kicad.yml
+          git add .github/workflows/build-kicad-versions.yml
           git commit -m "Update KiCad versions: ${{ env.new_versions }}"
           git push origin update-kicad-versions
 
