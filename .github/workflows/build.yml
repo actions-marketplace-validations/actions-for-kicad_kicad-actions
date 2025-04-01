@@ -28,10 +28,17 @@ jobs:
 
       - name: Update Dockerfile with KiCad Version ${{ matrix.kicad_version }}
         run: |
+          # Update Dockerfile with the appropriate KiCad version
           sed -i 's|FROM kicad/kicad:.*|FROM kicad/kicad:${{ matrix.kicad_version }}|' Dockerfile
-          git add Dockerfile
-          git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
-          git push origin HEAD
+
+          # Check if there are changes in the Dockerfile
+          if git diff --exit-code Dockerfile; then
+            echo "No changes to Dockerfile, skipping commit."
+          else
+            git add Dockerfile
+            git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
+            git push origin HEAD
+          fi
 
       - name: Create Git Tag and Release
         run: |
@@ -39,3 +46,5 @@ jobs:
           git tag $TAG
           git push origin $TAG
           gh release create $TAG --title "Release $TAG" --notes "Updated KiCad to version ${{ matrix.kicad_version }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
