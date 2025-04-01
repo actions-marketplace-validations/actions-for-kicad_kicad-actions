@@ -9,6 +9,7 @@ jobs:
   check-new-tags:
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       actions: write
       pull-requests: write
     steps:
