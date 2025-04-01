@@ -1,0 +1,22 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-kicad-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run KiCad Action
+        uses: ./
+        with:
+          kicad_version: "8.0"
+
+      - name: Verify KiCad Installation
+        run: kicad-cli --version

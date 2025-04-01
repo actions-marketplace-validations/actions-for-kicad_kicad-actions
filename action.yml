@@ -1,0 +1,17 @@
+name: "KiCad actions"
+description: "Install and setup kicad."
+branding:
+  icon: "cpu"
+  color: "green"
+
+inputs:
+  kicad_version:
+    description: "KiCad version to use (e.g., 9.0, 8.0)"
+    required: false
+    default: "9.0"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.kicad_version }}
