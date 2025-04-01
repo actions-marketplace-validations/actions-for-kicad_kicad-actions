@@ -22,7 +22,6 @@ jobs:
       - name: Run KiCad Action
         uses: ./
 
-  # Combine ERC and DRC check into one single job
   check-erc:
     runs-on: ubuntu-latest
     strategy:
@@ -31,61 +30,47 @@ jobs:
         test-name: ["erc-failure", "erc-success"]
         include:
           - test-name: erc-failure
+            erc: true
+            drc: false
             schematic_file: tests/kicad-project-failure/kicad-project.kicad_sch
+            pcb_file: null
             result: failure
           - test-name: erc-success
+            erc: true
+            drc: false
             schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            pcb_file: null
             result: success
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run ERC check
-        id: erc_check
-        uses: ./
-        with:
-          run_erc: true
-          schematic_file: ${{ matrix.schematic_file }}
-        continue-on-error: true
-      - name: Verify Check File Step Result
-        run: |
-          if [[ "${{ matrix.result }}" == "failure" && "${{ steps.erc_check.outcome }}" != "failure" ]]; then
-            echo "Expected failure, but step succeeded!"
-            exit 1
-          fi
-          if [[ "${{ matrix.result }}" == "success" && "${{ steps.erc_check.outcome }}" == "failure" ]]; then
-            echo "Expected success, but step failed!"
-            exit 1
-          fi
-        shell: bash
-
-  check-drc:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        test-name: ["drc-failure", "drc-success"]
-        include:
           - test-name: drc-failure
+            erc: false
+            drc: true
+            schematic_file: null
             pcb_file: tests/kicad-project-failure/kicad-project.kicad_pcb
             result: failure
           - test-name: drc-success
+            erc: false
+            drc: true
+            schematic_file: null
             pcb_file: tests/kicad-project-success/kicad-project.kicad_pcb
             result: success
     steps:
       - uses: actions/checkout@v4
-      - name: Run DRC check
-        id: drc_check
+      - name: Run ERC/DRC check
+        id: check
         uses: ./
         with:
-          run_drc: true
+          run_erc: ${{ matrix.erc }}
+          run_drc: ${{ matrix.drc }}
+          schematic_file: ${{ matrix.schematic_file }}
           pcb_file: ${{ matrix.pcb_file }}
         continue-on-error: true
       - name: Verify Check File Step Result
         run: |
-          if [[ "${{ matrix.result }}" == "failure" && "${{ steps.drc_check.outcome }}" != "failure" ]]; then
+          if [[ "${{ matrix.result }}" == "failure" && "${{ steps.check.outcome }}" != "failure" ]]; then
             echo "Expected failure, but step succeeded!"
             exit 1
           fi
-          if [[ "${{ matrix.result }}" == "success" && "${{ steps.drc_check.outcome }}" == "failure" ]]; then
+          if [[ "${{ matrix.result }}" == "success" && "${{ steps.check.outcome }}" == "failure" ]]; then
             echo "Expected success, but step failed!"
             exit 1
           fi
