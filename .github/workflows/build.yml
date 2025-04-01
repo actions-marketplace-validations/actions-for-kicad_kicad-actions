@@ -39,7 +39,7 @@ jobs:
           else
               git add Dockerfile
               git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
-              git push --set-upstream origin $BRANCH_NAME --force 
+              git push origin $BRANCH_NAME --set-upstream --force
           fi
 
       - name: Create Git Tag and Release
