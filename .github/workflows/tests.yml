@@ -21,3 +21,37 @@ jobs:
 
       - name: Run KiCad Action
         uses: ./
+
+  check-erc:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test-name: ["erc-failure", "erc-success"]
+        include:
+          - test-name: erc-failure
+            schematic_file: tests/kicad-project-failure/kicad-project.kicad_sch
+            result: failure
+          - test-name: erc-success
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            result: success
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ERC check
+        id: erc_check
+        uses: ./
+        with:
+          run_erc: true
+          schematic_file: ${{ matrix.file }}
+        continue-on-error: true
+      - name: Verify Check File Step Result
+        run: |
+          if [[ "${{ matrix.result }}" == "failure" && "${{ steps.erc_check.outcome }}" != "failure" ]]; then
+            echo "Expected failure, but step succeeded!"
+            exit 1
+          fi
+          if [[ "${{ matrix.result }}" == "success" && "${{ steps.erc_check.outcome }}" == "failure" ]]; then
+            echo "Expected success, but step failed!"
+            exit 1
+          fi
+        shell: bash

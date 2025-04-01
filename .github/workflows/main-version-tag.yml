@@ -1,4 +1,4 @@
-name: Add Main Version Tag
+name: Add main version tag
 
 on:
   release:
@@ -10,18 +10,26 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Extract main version number
         id: extract_version
         run: |
           TAG_NAME=${{ github.event.release.tag_name }}
-          MAIN_VERSION=$(echo $TAG_NAME | grep -oP 'v\K[0-9]+')
-          echo "::set-output name=main_version::v$MAIN_VERSION"
+          MAIN_VERSION=$(echo "$TAG_NAME" | grep -oP '^v\d+')
+          SUFFIX=$(echo "$TAG_NAME" | grep -oP 'k\d+\.\d+$')
+          if [[ -n "$MAIN_VERSION" && -n "$SUFFIX" ]]; then
+            MAIN_TAG="${MAIN_VERSION}-${SUFFIX}"
+            echo "Main tag: $MAIN_TAG"
+            echo "main_version=$MAIN_TAG" >> $GITHUB_ENV
+          else
+            echo "Tag format not recognized. Exiting."
+            exit 1
+          fi
 
       - name: Create or update main version tag
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git tag -f ${{ steps.extract_version.outputs.main_version }}
-          git push -f origin ${{ steps.extract_version.outputs.main_version }}
+          git tag -f ${{ env.main_version }}
+          git push -f origin ${{ env.main_version }}
