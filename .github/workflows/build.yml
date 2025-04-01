@@ -33,11 +33,11 @@ jobs:
 
           # Check if there are changes in the Dockerfile
           if git diff --exit-code Dockerfile; then
-            echo "No changes to Dockerfile, skipping commit."
+              echo "No changes to Dockerfile, skipping commit."
           else
-            git add Dockerfile
-            git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
-            git push origin HEAD
+              git add Dockerfile
+              git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
+              git push origin $BRANCH_NAME --force  # Force push the changes to the branch
           fi
 
       - name: Create Git Tag and Release
@@ -45,13 +45,6 @@ jobs:
           TAG="v${{ env.ACTION_VERSION }}-k${{ matrix.kicad_version }}"
           git tag $TAG
           git push origin $TAG
-          gh release create $TAG --title "Release $TAG" --notes "Updated KiCad to version ${{ matrix.kicad_version }}"
+          gh release create $TAG --title "v${{ env.ACTION_VERSION }}-k${{ matrix.kicad_version }}"
         env:
           GH_TOKEN: ${{ github.token }}
-
-      - name: Delete Temporary Branch
-        run: |
-          BRANCH_NAME="release-k${{ matrix.kicad_version }}"
-          git checkout main  # Switch back to main branch
-          git branch -D $BRANCH_NAME  # Delete branch locally
-          git push origin --delete $BRANCH_NAME  # Delete branch remotely
