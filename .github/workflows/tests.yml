@@ -19,10 +19,31 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run KiCad Action
+      - name: Run KiCad actions
         uses: ./
 
-  check-erc:
+  test-no-schematic-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run KiCad actions
+        id: kicad_actions
+        uses: ./
+        with:
+          schematic_output_pdf: true
+        continue-on-error: true
+
+      - name: Verify Check File Step Result
+        run: |
+          if [[ "${{ steps.kicad_actions.outcome }}" != "failure" ]]; then
+            echo "Expected failure, but step succeeded!"
+            exit 1
+          fi
+        shell: bash
+
+  test-erc-drc:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -64,7 +85,7 @@ jobs:
           schematic_file: ${{ matrix.schematic_file }}
           pcb_file: ${{ matrix.pcb_file }}
         continue-on-error: true
-      - name: Verify Check File Step Result
+      - name: Verify ERC/DRC step result
         run: |
           if [[ "${{ matrix.result }}" == "failure" && "${{ steps.check.outcome }}" != "failure" ]]; then
             echo "Expected failure, but step succeeded!"
