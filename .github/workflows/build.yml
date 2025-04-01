@@ -1,27 +1,23 @@
 name: Auto Update and Release KiCad Versions
 
 on:
-  workflow_dispatch: # Allows manual trigger
-    inputs:
-      action_version:
-        description: "Action version (e.g., v1)"
-        required: true
-        default: "v1"
-      kicad_versions:
-        description: "Comma-separated KiCad versions (e.g., 8.0,9.0)"
-        required: true
-        default: "8.0,9.0"
+  push:
+    tags:
+      - "^v\d+\.\d+$"
 
 jobs:
   update-dockerfile:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        kicad_version: ${{ fromJson(inputs.kicad_versions) }}
+        kicad_version: ["8.0", "9.0"]
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Extract Version from Tag
+        run: echo "ACTION_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
       - name: Create a new branch for KiCad ${{ matrix.kicad_version }}
         run: |
@@ -39,7 +35,7 @@ jobs:
 
       - name: Create Git Tag and Release
         run: |
-          TAG="${{ inputs.action_version }}-k${{ matrix.kicad_version }}"
+          TAG="v${{ env.ACTION_VERSION }}-k${{ matrix.kicad_version }}"
           git tag $TAG
           git push origin $TAG
           gh release create $TAG --title "Release $TAG" --notes "Updated KiCad to version ${{ matrix.kicad_version }}"
