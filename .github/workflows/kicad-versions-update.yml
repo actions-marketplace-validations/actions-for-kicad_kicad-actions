@@ -1,0 +1,69 @@
+name: Auto update KiCad versions
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  check-new-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get Current Versions
+        id: get_versions
+        run: |
+          CURRENT_VERSIONS=$(yq e '.jobs.update-dockerfile.strategy.matrix.kicad_version' .github/workflows/update-kicad.yml | yq e '.[]' - | tr '\n' ' ')
+          echo "Current versions: $CURRENT_VERSIONS"
+          echo "current_versions=$CURRENT_VERSIONS" >> $GITHUB_ENV
+
+      - name: Fetch Latest KiCad Tags
+        id: fetch_tags
+        run: |
+          TAGS=$(curl -s https://hub.docker.com/v2/repositories/kicad/kicad/tags/ | jq -r '.results[].name' | grep -E '^[0-9]+\.[0-9]+$' | sort -V)
+          echo "Latest tags: $TAGS"
+          echo "latest_tags=$TAGS" >> $GITHUB_ENV
+
+      - name: Find New Versions
+        id: find_new_versions
+        run: |
+          NEW_VERSIONS=""
+          for tag in ${{ env.latest_tags }}; do
+            if [[ ! " ${{ env.current_versions }} " =~ " $tag " ]]; then
+              NEW_VERSIONS+="$tag "
+            fi
+          done
+          echo "New versions: $NEW_VERSIONS"
+          echo "new_versions=$NEW_VERSIONS" >> $GITHUB_ENV
+
+      - name: Exit if No New Versions
+        if: env.new_versions == ''
+        run: echo "No new versions found. Exiting."
+
+      - name: Update Workflow File
+        if: env.new_versions != ''
+        run: |
+          UPDATED_VERSIONS=$(echo "${{ env.current_versions }} ${{ env.new_versions }}" | tr ' ' '\n' | sort -V | uniq | jq -R -s -c 'split("\n")[:-1]')
+          yq e -i '.jobs.update-dockerfile.strategy.matrix.kicad_version = '"$UPDATED_VERSIONS" .github/workflows/update-kicad.yml
+
+      - name: Commit Changes
+        if: env.new_versions != ''
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git checkout -b update-kicad-versions
+          git add .github/workflows/update-kicad.yml
+          git commit -m "Update KiCad versions: ${{ env.new_versions }}"
+          git push origin update-kicad-versions
+
+      - name: Create Pull Request
+        if: env.new_versions != ''
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: update-kicad-versions
+          title: "Update KiCad Versions"
+          body: "Automatically updated KiCad versions: ${{ env.new_versions }}"
+          labels: "automated update"
+          reviewers: "nick-v-l"

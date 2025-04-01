@@ -1,4 +1,4 @@
-name: Auto Update and Release KiCad Versions
+name: Auto release for multiple KiCad versions
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        kicad_version: ["8.0", "9.0"]
+        kicad_version: ["8.0"]
 
     steps:
       - name: Checkout Repository
@@ -20,20 +20,14 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          echo "ACTION_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-          echo "BRANCH_NAME=release-k${{ matrix.kicad_version }}" >> $GITHUB_ENV
-
-      - name: Create a new branch for KiCad ${{ matrix.kicad_version }}
-        run: |
-          git checkout -b ${{ env.BRANCH_NAME }}
+          echo "action_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          echo "branch_name=release-k${{ matrix.kicad_version }}" >> $GITHUB_ENV
 
       - name: Update Dockerfile with KiCad Version ${{ matrix.kicad_version }}
         run: |
-          # Checkout the release branch (if not already on it)
-          git checkout -b ${{ env.BRANCH_NAME }} || git checkout ${{ env.BRANCH_NAME }}
-
+          git checkout -b ${{ env.branch_name }}
           git fetch origin
-          git reset --hard v${{ env.ACTION_VERSION }}
+          git reset --hard v${{ env.action_version }}
 
           # Update Dockerfile with the appropriate KiCad version
           sed -i 's|FROM kicad/kicad:.*|FROM kicad/kicad:${{ matrix.kicad_version }}|' Dockerfile
@@ -46,14 +40,14 @@ jobs:
               git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
 
               # Force push the changes, setting upstream
-              git push origin ${{ env.BRANCH_NAME }} --force
+              git push origin ${{ env.branch_name }} --force
           fi
 
       - name: Create Git Tag and Release
         run: |
-          TAG="v${{ env.ACTION_VERSION }}-k${{ matrix.kicad_version }}"
+          TAG="v${{ env.action_version }}-k${{ matrix.kicad_version }}"
           git tag $TAG
           git push origin $TAG
-          gh release create $TAG --title "v${{ env.ACTION_VERSION }}-k${{ matrix.kicad_version }}"
+          gh release create $TAG --title "v${{ env.action_version }}-k${{ matrix.kicad_version }}"
         env:
           GH_TOKEN: ${{ github.token }}
