@@ -16,23 +16,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Extract Version from Tag
-        run: echo "ACTION_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-
-      - name: Create a new branch for KiCad ${{ matrix.kicad_version }}
+      - name: Extract Version from tag and create branch name
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          BRANCH_NAME="release-k${{ matrix.kicad_version }}"
-          git checkout -b $BRANCH_NAME
+          echo "ACTION_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=release-k${{ matrix.kicad_version }}" >> $GITHUB_ENV
+
+      - name: Create a new branch for KiCad ${{ matrix.kicad_version }}
+        run: |
+          git checkout -b ${{ env.BRANCH_NAME }}
 
       - name: Update Dockerfile with KiCad Version ${{ matrix.kicad_version }}
         run: |
           # Checkout the release branch (if not already on it)
-          git checkout -b $BRANCH_NAME || git checkout $BRANCH_NAME
+          git checkout -b ${{ env.BRANCH_NAME }} || git checkout ${{ env.BRANCH_NAME }}
 
           # Pull the latest changes from the remote branch to ensure it's up to date
-          git pull origin $BRANCH_NAME --rebase || echo "No existing branch to pull from"
+          git pull origin ${{ env.BRANCH_NAME }} --rebase || echo "No existing branch to pull from"
 
           # Rebase with the latest main branch (ensure you have the latest main)
           git fetch origin main
@@ -49,7 +50,7 @@ jobs:
               git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
 
               # Force push the changes, setting upstream
-              git push --set-upstream origin $BRANCH_NAME --force || git push -u origin $BRANCH_NAME --force
+              git push --set-upstream origin ${{ env.BRANCH_NAME }} --force || git push -u origin ${{ env.BRANCH_NAME }} --force
           fi
 
       - name: Create Git Tag and Release
