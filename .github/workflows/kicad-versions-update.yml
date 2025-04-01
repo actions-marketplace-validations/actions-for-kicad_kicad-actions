@@ -8,6 +8,8 @@ on:
 jobs:
   check-new-tags:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
