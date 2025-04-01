@@ -1,0 +1,9 @@
+name: "KiCad actions"
+description: "Install and setup kicad."
+branding:
+  icon: "cpu"
+  color: "green"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"

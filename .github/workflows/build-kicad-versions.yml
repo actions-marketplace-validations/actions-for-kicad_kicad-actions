@@ -1,0 +1,53 @@
+name: Auto release for multiple KiCad versions
+
+on:
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*"
+
+jobs:
+  update-dockerfile:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        kicad_version: ["8.0"]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract Version from tag and create branch name
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          echo "action_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          echo "branch_name=release-k${{ matrix.kicad_version }}" >> $GITHUB_ENV
+
+      - name: Update Dockerfile with KiCad Version ${{ matrix.kicad_version }}
+        run: |
+          git checkout -b ${{ env.branch_name }}
+          git fetch origin
+          git reset --hard v${{ env.action_version }}
+
+          # Update Dockerfile with the appropriate KiCad version
+          sed -i 's|FROM kicad/kicad:.*|FROM kicad/kicad:${{ matrix.kicad_version }}|' Dockerfile
+
+          # Check if there are changes in the Dockerfile
+          if git diff --exit-code Dockerfile; then
+              echo "No changes to Dockerfile, skipping commit."
+          else
+              git add Dockerfile
+              git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
+
+              # Force push the changes, setting upstream
+              git push origin ${{ env.branch_name }} --force
+          fi
+
+      - name: Create Git Tag and Release
+        run: |
+          TAG="v${{ env.action_version }}-k${{ matrix.kicad_version }}"
+          git tag $TAG
+          git push origin $TAG
+          gh release create $TAG --title "v${{ env.action_version }}-k${{ matrix.kicad_version }}"
+        env:
+          GH_TOKEN: ${{ github.token }}

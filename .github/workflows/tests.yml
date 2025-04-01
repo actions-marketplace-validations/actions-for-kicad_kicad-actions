@@ -1,0 +1,23 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "LICENSE"
+      - "*.md"
+  pull_request:
+    paths-ignore:
+      - "LICENSE"
+      - "*.md"
+
+jobs:
+  test-no-arguments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run KiCad Action
+        uses: ./
