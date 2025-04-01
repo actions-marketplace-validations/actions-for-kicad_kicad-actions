@@ -28,6 +28,8 @@ jobs:
 
       - name: Update Dockerfile with KiCad Version ${{ matrix.kicad_version }}
         run: |
+          git reset --hard HEAD
+
           # Update Dockerfile with the appropriate KiCad version
           sed -i 's|FROM kicad/kicad:.*|FROM kicad/kicad:${{ matrix.kicad_version }}|' Dockerfile
 
