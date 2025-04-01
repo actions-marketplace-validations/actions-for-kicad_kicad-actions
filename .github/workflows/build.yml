@@ -48,3 +48,10 @@ jobs:
           gh release create $TAG --title "Release $TAG" --notes "Updated KiCad to version ${{ matrix.kicad_version }}"
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Delete Temporary Branch
+        run: |
+          BRANCH_NAME="release-k${{ matrix.kicad_version }}"
+          git checkout main  # Switch back to main branch
+          git branch -D $BRANCH_NAME  # Delete branch locally
+          git push origin --delete $BRANCH_NAME  # Delete branch remotely
