@@ -8,17 +8,17 @@ cp -r /home/kicad/.config/kicad $HOME/.config/
 erc_violation=0 # ERC exit code
 drc_violation=0 # DRC exit code
 
-# Check if any schematic output/erc are selected without the file being present
-if [[ -z "$INPUT_SCHEMATIC_FILE" && (
-    "$INPUT_RUN_ERC" == "true" || 
-    "$INPUT_SCHEMATIC_OUTPUT_PDF" == "true" || 
-    "$INPUT_SCHEMATIC_OUTPUT_SVG" == "true" || 
-    "$INPUT_SCHEMATIC_OUTPUT_BOM" == "true" || 
-    "$INPUT_SCHEMATIC_OUTPUT_NETLIST" == "true" )
-]]; then
-    echo "Error: Schematic output/ERC options selected without a schematic file."
-    exit 1
-fi
+# # Check if any schematic output/erc are selected without the file being present
+# if [[ -z "$INPUT_SCHEMATIC_FILE" && (
+#     "$INPUT_RUN_ERC" == "true" || 
+#     "$INPUT_SCHEMATIC_OUTPUT_PDF" == "true" || 
+#     "$INPUT_SCHEMATIC_OUTPUT_SVG" == "true" || 
+#     "$INPUT_SCHEMATIC_OUTPUT_BOM" == "true" || 
+#     "$INPUT_SCHEMATIC_OUTPUT_NETLIST" == "true" )
+# ]]; then
+#     echo "Error: Schematic output/ERC options selected without a schematic file."
+#     exit 1
+# fi
 
 # Run ERC
 if [[ -n $INPUT_SCHEMATIC_FILE && $INPUT_RUN_ERC == "true" ]]
