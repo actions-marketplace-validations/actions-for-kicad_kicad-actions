@@ -32,12 +32,8 @@ jobs:
           # Checkout the release branch (if not already on it)
           git checkout -b ${{ env.BRANCH_NAME }} || git checkout ${{ env.BRANCH_NAME }}
 
-          # Pull the latest changes from the remote branch to ensure it's up to date
-          git pull origin ${{ env.BRANCH_NAME }} --rebase || echo "No existing branch to pull from"
-
-          # Rebase with the latest main branch (ensure you have the latest main)
-          git fetch origin main
-          git rebase origin/main
+          git fetch origin
+          git reset --hard origin/main
 
           # Update Dockerfile with the appropriate KiCad version
           sed -i 's|FROM kicad/kicad:.*|FROM kicad/kicad:${{ matrix.kicad_version }}|' Dockerfile
@@ -50,7 +46,7 @@ jobs:
               git commit -m "Update Dockerfile for KiCad ${{ matrix.kicad_version }}"
 
               # Force push the changes, setting upstream
-              git push --set-upstream origin ${{ env.BRANCH_NAME }} --force || git push -u origin ${{ env.BRANCH_NAME }} --force
+              git push origin ${{ env.BRANCH_NAME }} --force
           fi
 
       - name: Create Git Tag and Release
