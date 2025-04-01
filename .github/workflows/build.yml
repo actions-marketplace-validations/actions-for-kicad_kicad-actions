@@ -33,7 +33,7 @@ jobs:
           git checkout -b ${{ env.BRANCH_NAME }} || git checkout ${{ env.BRANCH_NAME }}
 
           git fetch origin
-          git reset --hard origin/v${{ env.ACTION_VERSION }}
+          git reset --hard v${{ env.ACTION_VERSION }}
 
           # Update Dockerfile with the appropriate KiCad version
           sed -i 's|FROM kicad/kicad:.*|FROM kicad/kicad:${{ matrix.kicad_version }}|' Dockerfile
