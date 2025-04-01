@@ -1,5 +1,4 @@
-ARG KICAD_VERSION=9.0
-FROM kicad/kicad:${KICAD_VERSION}
+FROM kicad/kicad:9.0
 
 USER root
 
