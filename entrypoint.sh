@@ -101,6 +101,12 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
       --format "$INPUT_PCB_OUTPUT_DRILL_FORMAT" \
       "$INPUT_PCB_FILE_NAME"
   fi
+
+  if [[ $INPUT_PCB_OUTPUT_DXF == "true" ]]; then
+    kicad-cli pcb export dxf \
+      --output "$INPUT_PCB_OUTPUT_DXF_FILE_NAME" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
 fi
 
 # Return non-zero exit code for ERC or DRC violations

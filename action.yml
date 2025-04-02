@@ -111,6 +111,15 @@ inputs:
     description: "Format of the drill file. Options: excellon, gerber"
     default: "excellon"
 
+  # Pcb DXF output
+  pcb_output_dxf:
+    description: "Run the DXF export of the pcb"
+    default: false
+
+  pcb_output_dxf_file_name:
+    description: "Output file name of DXF pcb"
+    default: "pcb.dxf"
+
   # pcb_gerbers:
   #   description: "Whether to generate Gerbers from PCB"
   #   default: false

@@ -216,12 +216,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_name: ["drill-excellon", "drill-gerber"]
+        test_name: ["drill-excellon", "drill-gerber", "dxf"]
         include:
           - test_name: drill-excellon
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_drill
-            expected_files: [drill/kicad_pcb.drl]
+            expected_files: [drill/kicad-project.drl]
           - test_name: drill-gerber
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_drill
@@ -231,6 +231,11 @@ jobs:
                 "drill/kicad-project-NPTH-drl.gbr",
               ]
             pcb_output_drill_format: gerber
+          - test_name: dxf
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            output_flag: pcb_output_dxf
+            expected_files: ["pcb.dxf"]
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -245,7 +250,7 @@ jobs:
 
       - name: Verify output files
         run: |
-          for file in "${{ join(matrix.expected_files, ' ') }}"; do
+          for file in "${${{matrix.expected_files}}[@]}"; do
             if [[ ! -f "$file" ]]; then
               echo "::error::Expected output file '$file' not found!"
               exit 1
