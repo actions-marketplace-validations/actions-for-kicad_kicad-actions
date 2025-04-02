@@ -74,25 +74,25 @@ jobs:
           - test_name: erc-failure
             erc: true
             drc: false
-            schematic_file: tests/kicad-project-failure/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-failure/kicad-project.kicad_sch
             pcb_file: null
             result: failure
           - test_name: erc-success
             erc: true
             drc: false
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             pcb_file: null
             result: success
           - test_name: drc-failure
             erc: false
             drc: true
-            schematic_file: null
+            schematic_file_name: null
             pcb_file: tests/kicad-project-failure/kicad-project.kicad_pcb
             result: failure
           - test_name: drc-success
             erc: false
             drc: true
-            schematic_file: null
+            schematic_file_name: null
             pcb_file: tests/kicad-project-success/kicad-project.kicad_pcb
             result: success
     steps:
@@ -103,7 +103,7 @@ jobs:
         with:
           run_erc: ${{ matrix.erc }}
           run_drc: ${{ matrix.drc }}
-          schematic_file: ${{ matrix.schematic_file }}
+          schematic_file_name: ${{ matrix.schematic_file_name }}
           pcb_file: ${{ matrix.pcb_file }}
         continue-on-error: true
       - name: Verify ERC/DRC step result
@@ -140,61 +140,61 @@ jobs:
           ]
         include:
           - test_name: pdf
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_pdf
             expected_file: schematic.pdf
             schematic_output_black_white: false
           - test_name: pdf-black-white
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_pdf
             expected_file: schematic.pdf
             schematic_output_black_white: true
           - test_name: svg
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_svg
             expected_file: schematics/kicad-project.svg
             schematic_output_black_white: false
           - test_name: svg-black-white
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_svg
             expected_file: schematics/kicad-project.svg
             schematic_output_black_white: true
           - test_name: dxf
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_dxf
             expected_file: schematics/kicad-project.dxf
             schematic_output_black_white: false
           - test_name: dxf-black-white
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_dxf
             expected_file: schematics/kicad-project.dxf
             schematic_output_black_white: true
           - test_name: hpgl
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_hpgl
-            expected_file: schematics/kicad-project.hpgl
+            expected_file: schematics/kicad-project.plt
             schematic_output_black_white: false
           - test_name: hpgl-black-white
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_hpgl
-            expected_file: schematics/kicad-project.hpgl
+            expected_file: schematics/kicad-project.plt
             schematic_output_black_white: true
           - test_name: ps
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_ps
             expected_file: schematics/kicad-project.ps
             schematic_output_black_white: false
           - test_name: ps-black-white
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_ps
             expected_file: schematics/kicad-project.ps
             schematic_output_black_white: true
           - test_name: bom
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_bom
             expected_file: bom.csv
           - test_name: netlist
-            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_netlist
             expected_file: netlist.net
     steps:
@@ -205,7 +205,7 @@ jobs:
         id: generate_output
         uses: ./
         with:
-          schematic_file: ${{ matrix.schematic_file }}
+          schematic_file_name: ${{ matrix.schematic_file_name }}
           ${{ matrix.output_flag }}: true
           schematic_output_black_white: ${{ matrix.schematic_output_black_white || false }}
 
@@ -216,4 +216,40 @@ jobs:
             exit 1
           fi
         shell: bash
-# TODO CHECK ERC DRC OUTPUT FILE
+
+  test-pcb-outputs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test_name: ["drill-excellon", "drill-gerber"]
+        include:
+          - test_name: drill-excellon
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            output_flag: pcb_output_drill
+            expected_file: drill/kicad_pcb.drl
+          - test_name: drill-gerber
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            output_flag: pcb_output_drill
+            expected_file: drill/kicad_pcb.drl
+            pcb_output_drill_format: gerber
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run schematic output generation
+        id: generate_output
+        uses: ./
+        with:
+          pcb_file_name: ${{ matrix.pcb_file_name }}
+          ${{ matrix.output_flag }}: true
+          pcb_output_drill_format: ${{ matrix.pcb_output_drill_format || 'excellon' }}
+
+      - name: Verify output file
+        run: |
+          if [[ ! -f "${{ matrix.expected_file }}" ]]; then
+            echo "::error::Expected output file '${{ matrix.expected_file }}' not found!"
+            exit 1
+          fi
+        shell: bash
+  # TODO CHECK ERC DRC OUTPUT FILE

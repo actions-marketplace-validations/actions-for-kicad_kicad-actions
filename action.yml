@@ -6,7 +6,7 @@ branding:
 
 inputs:
   # Schematic input file
-  schematic_file:
+  schematic_file_name:
     description: "Location of the .kicad_sch file"
 
   # ERC run
@@ -86,7 +86,7 @@ inputs:
     default: "netlist.net"
 
   # PCB input file
-  pcb_file:
+  pcb_file_name:
     description: "Location of the .kicad_pcb file"
 
   # DRC run
@@ -97,6 +97,19 @@ inputs:
   drc_output_file_name:
     description: "Output file name of DRC report"
     default: "drc.rpt"
+
+  # PCB drill output
+  pcb_output_drill:
+    description: "Run the drill export of the PCB"
+    default: false
+
+  pcb_output_drill_folder_name:
+    description: "Output folder name of drill file"
+    default: "drill"
+
+  pcb_output_drill_format:
+    description: "Format of the drill file. Options: excellon, gerber"
+    default: "excellon"
 
   # pcb_gerbers:
   #   description: "Whether to generate Gerbers from PCB"
