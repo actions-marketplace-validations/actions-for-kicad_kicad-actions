@@ -20,14 +20,14 @@ if [[ -z $INPUT_SCHEMATIC_FILE && (
     $INPUT_SCHEMATIC_OUTPUT_BOM == "true" || 
     $INPUT_SCHEMATIC_OUTPUT_NETLIST == "true" )
 ]]; then
-    echo "::warning::Schematic output/ERC options selected without a schematic file. These output actions will be skipped."
+    echo "::error::Schematic output/ERC options selected without a schematic file."
 fi
 
 # Check if any PCB output/drc are selected without the file being present
 if [[ -z $INPUT_PCB_FILE && (
     $INPUT_RUN_DRC == "true" )
 ]]; then
-    echo "::warning::PCB output/DRC options selected without a PCB file. These output actions will be skipped."
+    echo "::error::PCB output/DRC options selected without a PCB file."
 fi
 
 # Run schematic outputs
@@ -52,6 +52,24 @@ if [[ -n $INPUT_SCHEMATIC_FILE ]]; then
     "${cmd[@]}" "$INPUT_SCHEMATIC_FILE"
   fi
 
+  if [[ $INPUT_SCHEMATIC_OUTPUT_DXF == "true" ]]; then
+    cmd=(kicad-cli sch export dxf --output "$INPUT_SCHEMATIC_OUTPUT_DXF_FOLDER_NAME")
+    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE"
+  fi
+
+  if [[ $INPUT_SCHEMATIC_OUTPUT_HPGL == "true" ]]; then
+    cmd=(kicad-cli sch export hpgl --output "$INPUT_SCHEMATIC_OUTPUT_HPGL_FOLDER_NAME")
+    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE"
+  fi
+
+  if [[ $INPUT_SCHEMATIC_OUTPUT_PS == "true" ]]; then
+    cmd=(kicad-cli sch export ps --output "$INPUT_SCHEMATIC_OUTPUT_PS_FOLDER_NAME")
+    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE"
+  fi
+
   if [[ $INPUT_SCHEMATIC_OUTPUT_BOM == "true" ]]; then
     kicad-cli sch export bom \
       --output "$INPUT_SCHEMATIC_OUTPUT_BOM_FILE_NAME" \
@@ -66,12 +84,16 @@ if [[ -n $INPUT_SCHEMATIC_FILE ]]; then
 fi
 
 # Run DRC
-if [[ -n $INPUT_PCB_FILE && $INPUT_RUN_DRC == "true" ]]; then
-  kicad-cli pcb drc \
-    --output "$INPUT_DRC_OUTPUT_FILE_NAME" \
-    --exit-code-violations \
-    "$INPUT_PCB_FILE"
-  drc_violation=$?
+if [[ -n $INPUT_SCHEMATIC_FILE ]]; then
+  if [[ $INPUT_RUN_DRC == "true" ]]; then
+    kicad-cli pcb drc \
+      --output "$INPUT_DRC_OUTPUT_FILE_NAME" \
+      --exit-code-violations \
+      "$INPUT_PCB_FILE"
+    drc_violation=$?
+  fi
+
+
 fi
 
 # Return non-zero exit code for ERC or DRC violations

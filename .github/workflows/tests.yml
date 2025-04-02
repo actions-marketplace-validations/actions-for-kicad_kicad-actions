@@ -43,7 +43,7 @@ jobs:
           fi
         shell: bash
 
-  test-pcb-schematic-file:
+  test-no-pcb-file:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -124,7 +124,20 @@ jobs:
       fail-fast: false
       matrix:
         test_name:
-          ["pdf", "pdf-black-white", "svg", "svg-black-white", "bom", "netlist"]
+          [
+            "pdf",
+            "pdf-black-white",
+            "svg",
+            "svg-black-white",
+            "dxf",
+            "dxf-black-white",
+            "hpgl",
+            "hpgl-black-white",
+            "ps",
+            "ps-black-white",
+            "bom",
+            "netlist",
+          ]
         include:
           - test_name: pdf
             schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
@@ -145,6 +158,36 @@ jobs:
             schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_svg
             expected_file: schematics/kicad-project.svg
+            schematic_output_black_white: true
+          - test_name: dxf
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_dxf
+            expected_file: schematics/kicad-project.dxf
+            schematic_output_black_white: false
+          - test_name: dxf-black-white
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_dxf
+            expected_file: schematics/kicad-project.dxf
+            schematic_output_black_white: true
+          - test_name: hpgl
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_hpgl
+            expected_file: schematics/kicad-project.hpgl
+            schematic_output_black_white: false
+          - test_name: hpgl-black-white
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_hpgl
+            expected_file: schematics/kicad-project.hpgl
+            schematic_output_black_white: true
+          - test_name: ps
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_ps
+            expected_file: schematics/kicad-project.ps
+            schematic_output_black_white: false
+          - test_name: ps-black-white
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_ps
+            expected_file: schematics/kicad-project.ps
             schematic_output_black_white: true
           - test_name: bom
             schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
