@@ -102,9 +102,26 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
       "$INPUT_PCB_FILE_NAME"
   fi
 
+  if [[ $INPUT_PCB_OUTPUT_GERBERS == "true" ]]; then
+    cmd=(kicad-cli pcb export gerbers --output "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME")
+    [[ -n $INPUT_PCB_OUTPUT_LAYERS ]] && cmd+=(--layers "$pcb_output_layers")
+    "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
+
+    if [[ $INPUT_PCB_OUTPUT_GERBERS_ZIP == "true" ]]; then
+      zip -r "$INPUT_PCB_OUTPUT_GERBERS_ZIP_FILE_NAME.zip" "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME/*"
+      rm -rf "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME"
+    fi
+  fi
+
   if [[ $INPUT_PCB_OUTPUT_DXF == "true" ]]; then
+    if [[ -z $INPUT_PCB_OUTPUT_LAYERS ]]; then
+      echo "::error::No layers set for PCB output."
+      exit 1
+    fi
+
     kicad-cli pcb export dxf \
       --output "$INPUT_PCB_OUTPUT_DXF_FILE_NAME" \
+      --layers "$INPUT_PCB_OUTPUT_LAYERS" \
       "$INPUT_PCB_FILE_NAME"
   fi
 fi

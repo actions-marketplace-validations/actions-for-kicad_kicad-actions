@@ -216,7 +216,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_name: ["drill-excellon", "drill-gerber", "dxf"]
+        test_name:
+          [
+            "drill-excellon",
+            "drill-gerber",
+            "gerbers-seperate",
+            "gerbers-zip",
+            "dxf",
+          ]
         include:
           - test_name: drill-excellon
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
@@ -231,9 +238,25 @@ jobs:
                 "drill/kicad-project-NPTH-drl.gbr",
               ]
             pcb_output_drill_format: gerber
+          - test_name: gerbers-seperate
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            output_flag: pcb_output_gerbers
+            pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
+            expected_files:
+              [
+                "gerbers/kicad-project-F_Cu.gbr",
+                "gerbers/kicad-project-F_Mask.gbr",
+                "gerbers/kicad-project-F_SilkS.gbr",
+              ]
+          - test_name: gerbers-zip
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            output_flag: pcb_output_gerbers
+            expected_files: ["gerbers.zip"]
+            pcb_output_gerbers_zip: true
           - test_name: dxf
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_dxf
+            pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
             expected_files: ["pcb.dxf"]
 
     steps:
@@ -247,6 +270,8 @@ jobs:
           pcb_file_name: ${{ matrix.pcb_file_name }}
           ${{ matrix.output_flag }}: true
           pcb_output_drill_format: ${{ matrix.pcb_output_drill_format || 'excellon' }}
+          pcb_output_gerbers_zip: ${{ matrix.pcb_output_gerbers_zip || false }}
+          pcb_output_layers: ${{ matrix.pcb_output_layers || null }}
 
       - name: Verify output files
         run: |

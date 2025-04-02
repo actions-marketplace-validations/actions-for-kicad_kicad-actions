@@ -111,6 +111,26 @@ inputs:
     description: "Format of the drill file. Options: excellon, gerber"
     default: "excellon"
 
+  # PCB gerbers output
+  pcb_output_gerbers:
+    description: "Run the gerber export of the PCB"
+    default: false
+
+  pcb_output_gerbers_folder_name:
+    description: "Output folder name of gerber files"
+    default: "gerbers"
+
+  pcb_output_gerbers_zip:
+    description: "Zip the gerber files"
+    default: false
+
+  pcb_output_gerbers_zip_file_name:
+    description: "Output file name of gerber zip file"
+    default: "gerbers.zip"
+
+  pcb_output_layers:
+    description: "Output layers of the PCB"
+
   # Pcb DXF output
   pcb_output_dxf:
     description: "Run the DXF export of the pcb"
@@ -119,28 +139,6 @@ inputs:
   pcb_output_dxf_file_name:
     description: "Output file name of DXF pcb"
     default: "pcb.dxf"
-
-  # pcb_gerbers:
-  #   description: "Whether to generate Gerbers from PCB"
-  #   default: false
-  # pcb_gerbers_file:
-  #   description: "Output file name of Gerbers ZIP"
-  #   default: "gbr.zip"
-  # pcb_image:
-  #   description: "Whether to render the PCB image"
-  #   default: false
-  # pcb_image_path:
-  #   description: "Where to put the top.png and bottom.png"
-  #   default: "images"
-  # pcb_model:
-  #   description: "Whether to export the PCB model"
-  #   default: false
-  # pcb_model_file:
-  #   description: "Output file name of PCB model"
-  #   default: "pcb.step"
-  # pcb_model_flags:
-  #   description: "Flags to add when exporting STEP files"
-  #   default: "--no-unspecified --no-dnp --include-tracks  --include-pads  --include-zones"
 
 runs:
   using: "docker"
