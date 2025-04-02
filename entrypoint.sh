@@ -120,7 +120,7 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
     fi
 
     kicad-cli pcb export dxf \
-      --output "$INPUT_PCB_OUTPUT_DXF_FILE_NAME" \
+      --output "$INPUT_PCB_OUTPUT_DXF_FOLDER_NAME" \
       --layers "$INPUT_PCB_OUTPUT_LAYERS" \
       "$INPUT_PCB_FILE_NAME"
   fi
