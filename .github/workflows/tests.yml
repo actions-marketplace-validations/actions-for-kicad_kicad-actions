@@ -228,36 +228,32 @@ jobs:
           - test_name: drill-excellon
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_drill
-            expected_files: [drill/kicad-project.drl]
+            expected_files: drill/kicad-project.drl
           - test_name: drill-gerber
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_drill
-            expected_files:
-              [
-                "drill/kicad-project-PTH-drl.gbr",
-                "drill/kicad-project-NPTH-drl.gbr",
-              ]
+            expected_files: |
+              "drill/kicad-project-PTH-drl.gbr"
+              "drill/kicad-project-NPTH-drl.gbr"
             pcb_output_drill_format: gerber
           - test_name: gerbers-seperate
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_gerbers
             pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
-            expected_files:
-              [
-                "gerbers/kicad-project-F_Cu.gbr",
-                "gerbers/kicad-project-F_Mask.gbr",
-                "gerbers/kicad-project-F_SilkS.gbr",
-              ]
+            expected_files: |
+              "gerbers/kicad-project-F_Cu.gbr"
+              "gerbers/kicad-project-F_Mask.gbr"
+              "gerbers/kicad-project-F_SilkS.gbr"
           - test_name: gerbers-zip
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_gerbers
-            expected_files: ["gerbers.zip"]
+            expected_files: "gerbers.zip"
             pcb_output_gerbers_zip: true
           - test_name: dxf
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_dxf
             pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
-            expected_files: ["pcb.dxf"]
+            expected_files: "pcb.dxf"
 
     steps:
       - name: Checkout Repository
@@ -275,8 +271,8 @@ jobs:
 
       - name: Verify output files
         run: |
-          for file in ${{ matrix.expected_files }}; do
-            if [[ ! -f "$file" ]]; then
+          echo "${{ matrix.expected_files }}" | while IFS= read -r file; do
+            if [[ -n "$file" && ! -f "$file" ]]; then
               echo "::error::Expected output file '$file' not found!"
               exit 1
             fi
