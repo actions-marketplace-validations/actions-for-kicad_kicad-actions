@@ -28,7 +28,7 @@ inputs:
     default: "schematic.pdf"
 
   schematic_output_black_white:
-    description: "Run the PDF, SVG and DXF export in black and white"
+    description: "Run the PDF, SVG, DXF and PS export in black and white"
     default: false
 
   # Schematic SVG output

@@ -97,7 +97,7 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
 
   if [[ $INPUT_PCB_OUTPUT_DRILL == "true" ]]; then
     kicad-cli pcb export drill \
-      --output "$INPUT_PCB_OUTPUT_DRILL_FILE_NAME" \
+      --output "$INPUT_PCB_OUTPUT_DRILL_FOLDER_NAME" \
       --format "$INPUT_PCB_OUTPUT_DRILL_FORMAT" \
       "$INPUT_PCB_FILE_NAME"
   fi

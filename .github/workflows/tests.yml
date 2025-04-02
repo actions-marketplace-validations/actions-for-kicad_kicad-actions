@@ -53,7 +53,7 @@ jobs:
         id: kicad_actions
         uses: ./
         with:
-          pcb_output_gerbers: true
+          pcb_output_drill: true
         continue-on-error: true
 
       - name: Verify file check result
@@ -75,25 +75,25 @@ jobs:
             erc: true
             drc: false
             schematic_file_name: tests/kicad-project-failure/kicad-project.kicad_sch
-            pcb_file: null
+            pcb_file_name: null
             result: failure
           - test_name: erc-success
             erc: true
             drc: false
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
-            pcb_file: null
+            pcb_file_name: null
             result: success
           - test_name: drc-failure
             erc: false
             drc: true
             schematic_file_name: null
-            pcb_file: tests/kicad-project-failure/kicad-project.kicad_pcb
+            pcb_file_name: tests/kicad-project-failure/kicad-project.kicad_pcb
             result: failure
           - test_name: drc-success
             erc: false
             drc: true
             schematic_file_name: null
-            pcb_file: tests/kicad-project-success/kicad-project.kicad_pcb
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             result: success
     steps:
       - uses: actions/checkout@v4
@@ -104,7 +104,7 @@ jobs:
           run_erc: ${{ matrix.erc }}
           run_drc: ${{ matrix.drc }}
           schematic_file_name: ${{ matrix.schematic_file_name }}
-          pcb_file: ${{ matrix.pcb_file }}
+          pcb_file_name: ${{ matrix.pcb_file_name }}
         continue-on-error: true
       - name: Verify ERC/DRC step result
         run: |
@@ -132,7 +132,6 @@ jobs:
             "dxf",
             "dxf-black-white",
             "hpgl",
-            "hpgl-black-white",
             "ps",
             "ps-black-white",
             "bom",
@@ -174,11 +173,6 @@ jobs:
             output_flag: schematic_output_hpgl
             expected_file: schematics/kicad-project.plt
             schematic_output_black_white: false
-          - test_name: hpgl-black-white
-            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
-            output_flag: schematic_output_hpgl
-            expected_file: schematics/kicad-project.plt
-            schematic_output_black_white: true
           - test_name: ps
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_ps
@@ -227,11 +221,15 @@ jobs:
           - test_name: drill-excellon
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_drill
-            expected_file: drill/kicad_pcb.drl
+            expected_files: [drill/kicad_pcb.drl]
           - test_name: drill-gerber
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_drill
-            expected_file: drill/kicad_pcb.drl
+            expected_files:
+              [
+                "drill/kicad-project-PTH-drl.gbr",
+                "drill/kicad-project-NPTH-drl.gbr",
+              ]
             pcb_output_drill_format: gerber
     steps:
       - name: Checkout Repository
@@ -245,11 +243,13 @@ jobs:
           ${{ matrix.output_flag }}: true
           pcb_output_drill_format: ${{ matrix.pcb_output_drill_format || 'excellon' }}
 
-      - name: Verify output file
+      - name: Verify output files
         run: |
-          if [[ ! -f "${{ matrix.expected_file }}" ]]; then
-            echo "::error::Expected output file '${{ matrix.expected_file }}' not found!"
-            exit 1
-          fi
+          for file in "${{ join(matrix.expected_files, ' ') }}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "::error::Expected output file '$file' not found!"
+              exit 1
+            fi
+          done
         shell: bash
-  # TODO CHECK ERC DRC OUTPUT FILE
+    # TODO CHECK ERC DRC OUTPUT FILE
