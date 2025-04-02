@@ -35,10 +35,31 @@ jobs:
           schematic_output_pdf: true
         continue-on-error: true
 
-      - name: Verify Check File Step Result
+      - name: Verify file check result
         run: |
           if [[ "${{ steps.kicad_actions.outcome }}" != "failure" ]]; then
-            echo "Expected failure, but step succeeded!"
+            echo "::error::Expected failure, but step succeeded!"
+            exit 1
+          fi
+        shell: bash
+
+  test-pcb-schematic-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run KiCad actions
+        id: kicad_actions
+        uses: ./
+        with:
+          pcb_output_gerbers: true
+        continue-on-error: true
+
+      - name: Verify file check result
+        run: |
+          if [[ "${{ steps.kicad_actions.outcome }}" != "failure" ]]; then
+            echo "::error::Expected failure, but step succeeded!"
             exit 1
           fi
         shell: bash
@@ -48,27 +69,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-name: ["erc-failure", "erc-success"]
+        test_name: ["erc-failure", "erc-success", "drc-failure", "drc-success"]
         include:
-          - test-name: erc-failure
+          - test_name: erc-failure
             erc: true
             drc: false
             schematic_file: tests/kicad-project-failure/kicad-project.kicad_sch
             pcb_file: null
             result: failure
-          - test-name: erc-success
+          - test_name: erc-success
             erc: true
             drc: false
             schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
             pcb_file: null
             result: success
-          - test-name: drc-failure
+          - test_name: drc-failure
             erc: false
             drc: true
             schematic_file: null
             pcb_file: tests/kicad-project-failure/kicad-project.kicad_pcb
             result: failure
-          - test-name: drc-success
+          - test_name: drc-success
             erc: false
             drc: true
             schematic_file: null
@@ -88,11 +109,67 @@ jobs:
       - name: Verify ERC/DRC step result
         run: |
           if [[ "${{ matrix.result }}" == "failure" && "${{ steps.check.outcome }}" != "failure" ]]; then
-            echo "Expected failure, but step succeeded!"
+            echo "::error::Expected failure, but step succeeded!"
             exit 1
           fi
           if [[ "${{ matrix.result }}" == "success" && "${{ steps.check.outcome }}" == "failure" ]]; then
-            echo "Expected success, but step failed!"
+            echo "::error::Expected success, but step failed!"
+            exit 1
+          fi
+        shell: bash
+
+  test-schematic-outputs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test_name:
+          ["pdf", "pdf-black-white", "svg", "svg-black-white", "bom", "netlist"]
+        include:
+          - test_name: pdf
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_pdf
+            expected_file: schematic.pdf
+            schematic_output_black_white: false
+          - test_name: pdf-black-white
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_pdf
+            expected_file: schematic.pdf
+            schematic_output_black_white: true
+          - test_name: svg
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_svg
+            expected_file: schematic.svg
+            schematic_output_black_white: false
+          - test_name: svg-black-white
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_svg
+            expected_file: schematic.svg
+            schematic_output_black_white: true
+          - test_name: bom
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_bom
+            expected_file: bom.csv
+          - test_name: netlist
+            schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
+            output_flag: schematic_output_netlist
+            expected_file: netlist.net
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run schematic output generation
+        id: generate_output
+        uses: ./
+        with:
+          schematic_file: ${{ matrix.schematic_file }}
+          ${{ matrix.output_flag }}: true
+          schematic_output_black_white: ${{ matrix.schematic_output_black_white || false }}
+
+      - name: Verify output file
+        run: |
+          if [[ ! -f "${{ matrix.expected_file }}" ]]; then
+            echo "::error::Expected output file '${{ matrix.expected_file }}' not found!"
             exit 1
           fi
         shell: bash

@@ -23,7 +23,7 @@ inputs:
     description: "Run the PDF export of the schematic"
     default: false
 
-  schematic_output_pdf_name:
+  schematic_output_pdf_file_name:
     description: "Output filename of PDF schematic"
     default: "schematic.pdf"
 
@@ -36,7 +36,7 @@ inputs:
     description: "Run the SVG export of the schematic"
     default: false
 
-  schematic_output_svg_name:
+  schematic_output_svg_file_name:
     description: "Output filename of SVG schematic"
     default: "schematic.svg"
 
@@ -45,7 +45,7 @@ inputs:
     description: "Run the BOM export of the schematic"
     default: false
 
-  schematic_output_bom_name:
+  schematic_output_bom_file_name:
     description: "Output filename of the BOM"
     default: "bom.csv"
 
@@ -54,7 +54,7 @@ inputs:
     description: "Run the netlist export of the schematic"
     default: false
 
-  schematic_output_netlist_name:
+  schematic_output_netlist_file_name:
     description: "Output filename of the netlist"
     default: "netlist.net"
 

@@ -16,7 +16,15 @@ if [[ -z $INPUT_SCHEMATIC_FILE && (
     $INPUT_SCHEMATIC_OUTPUT_BOM == "true" || 
     $INPUT_SCHEMATIC_OUTPUT_NETLIST == "true" )
 ]]; then
-    echo "Error: Schematic output/ERC options selected without a schematic file."
+    echo "::error::Schematic output/ERC options selected without a schematic file."
+    exit 1
+fi
+
+# Check if any PCB output/drc are selected without the file being present
+if [[ -z $INPUT_PCB_FILE && (
+    $INPUT_RUN_DRC == "true" )
+]]; then
+    echo "::error::PCB output/DRC options selected without a PCB file."
     exit 1
 fi
 
@@ -28,6 +36,54 @@ then
     --exit-code-violations \
     "$INPUT_SCHEMATIC_FILE"
   erc_violation=$?
+fi
+
+# Run schematic outputs
+if [[ -n $INPUT_SCHEMATIC_FILE ]]
+then
+  if [[ $INPUT_SCHEMATIC_OUTPUT_PDF == "true" ]]
+  then
+    if [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]]
+    then
+      kicad-cli sch pdf \
+        --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_PDF_FILE_NAME" \
+        --black-and-white \
+        "$INPUT_SCHEMATIC_FILE"
+    else
+      kicad-cli sch pdf \
+        --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_PDF_FILE_NAME" \
+        "$INPUT_SCHEMATIC_FILE"
+    fi
+  fi
+
+  if [[ $INPUT_SCHEMATIC_OUTPUT_SVG == "true" ]]
+  then
+    if [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]]
+    then
+      kicad-cli sch svg \
+        --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_SVG_FILE_NAME" \
+        --black-and-white \
+        "$INPUT_SCHEMATIC_FILE"
+    else
+      kicad-cli sch svg \
+        --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_SVG_FILE_NAME" \
+        "$INPUT_SCHEMATIC_FILE"
+    fi
+  fi
+
+  if [[ $INPUT_SCHEMATIC_OUTPUT_BOM == "true" ]]
+  then
+    kicad-cli sch bom \
+      --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_BOM_FILE_NAME" \
+      "$INPUT_SCHEMATIC_FILE"
+  fi
+
+  if [[ $INPUT_SCHEMATIC_OUTPUT_NETLIST == "true" ]]
+  then
+    kicad-cli sch netlist \
+      --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_NETLIST_FILE_NAME" \
+      "$INPUT_SCHEMATIC_FILE"
+  fi
 fi
 
 # Run DRC
