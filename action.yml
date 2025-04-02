@@ -136,9 +136,9 @@ inputs:
     description: "Run the DXF export of the pcb"
     default: false
 
-  pcb_output_dxf_file_name:
-    description: "Output file name of DXF pcb"
-    default: "pcb.dxf"
+  pcb_output_dxf_folder_name:
+    description: "Output folder name of DXF pcb"
+    default: "dxf"
 
 runs:
   using: "docker"

@@ -253,7 +253,10 @@ jobs:
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             output_flag: pcb_output_dxf
             pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
-            expected_files: "pcb.dxf"
+            expected_files: |
+              "dxf/kicad-project-F_Cu.dxf"
+              "dxf/kicad-project-F_Mask.dxf"
+              "dxf/kicad-project-F_SilkS.dxf"
 
     steps:
       - name: Checkout Repository
