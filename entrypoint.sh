@@ -47,7 +47,7 @@ if [[ -n $INPUT_SCHEMATIC_FILE ]]; then
   fi
 
   if [[ $INPUT_SCHEMATIC_OUTPUT_SVG == "true" ]]; then
-    cmd=(kicad-cli sch export svg --output "$INPUT_SCHEMATIC_OUTPUT_SVG_FILE_NAME")
+    cmd=(kicad-cli sch export svg --output "$INPUT_SCHEMATIC_OUTPUT_SVG_FOLDER_NAME")
     [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
     "${cmd[@]}" "$INPUT_SCHEMATIC_FILE"
   fi
@@ -60,7 +60,7 @@ if [[ -n $INPUT_SCHEMATIC_FILE ]]; then
 
   if [[ $INPUT_SCHEMATIC_OUTPUT_NETLIST == "true" ]]; then
     kicad-cli sch export netlist \
-      --output "$INPUT_SCHEMATIC_OUTPUT_NETLIST_FILE_NAM"E \
+      --output "$INPUT_SCHEMATIC_OUTPUT_NETLIST_FILE_NAME" \
       "$INPUT_SCHEMATIC_FILE"
   fi
 fi

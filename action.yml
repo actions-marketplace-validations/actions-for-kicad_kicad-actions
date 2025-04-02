@@ -15,7 +15,7 @@ inputs:
     default: false
 
   erc_output_file_name:
-    description: "Output filename of ERC report"
+    description: "Output file name of ERC report"
     default: "erc.rpt"
 
   # Schematic PDF output
@@ -24,7 +24,7 @@ inputs:
     default: false
 
   schematic_output_pdf_file_name:
-    description: "Output filename of PDF schematic"
+    description: "Output file name of PDF schematic"
     default: "schematic.pdf"
 
   schematic_output_black_white:
@@ -36,9 +36,9 @@ inputs:
     description: "Run the SVG export of the schematic"
     default: false
 
-  schematic_output_svg_file_name:
-    description: "Output filename of SVG schematic"
-    default: "schematic.svg"
+  schematic_output_svg_folder_name:
+    description: "Output folder name of SVG schematic"
+    default: "schematics"
 
   # Schematic BOM output
   schematic_output_bom:
@@ -46,7 +46,7 @@ inputs:
     default: false
 
   schematic_output_bom_file_name:
-    description: "Output filename of the BOM"
+    description: "Output file name of the BOM"
     default: "bom.csv"
 
   # Schematic netlist output
@@ -55,7 +55,7 @@ inputs:
     default: false
 
   schematic_output_netlist_file_name:
-    description: "Output filename of the netlist"
+    description: "Output file name of the netlist"
     default: "netlist.net"
 
   # PCB input file
@@ -68,14 +68,14 @@ inputs:
     default: false
 
   drc_output_file_name:
-    description: "Output filename of DRC report"
+    description: "Output file name of DRC report"
     default: "drc.rpt"
 
   # pcb_gerbers:
   #   description: "Whether to generate Gerbers from PCB"
   #   default: false
   # pcb_gerbers_file:
-  #   description: "Output filename of Gerbers ZIP"
+  #   description: "Output file name of Gerbers ZIP"
   #   default: "gbr.zip"
   # pcb_image:
   #   description: "Whether to render the PCB image"
@@ -87,7 +87,7 @@ inputs:
   #   description: "Whether to export the PCB model"
   #   default: false
   # pcb_model_file:
-  #   description: "Output filename of PCB model"
+  #   description: "Output file name of PCB model"
   #   default: "pcb.step"
   # pcb_model_flags:
   #   description: "Flags to add when exporting STEP files"

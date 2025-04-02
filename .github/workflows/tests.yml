@@ -139,12 +139,12 @@ jobs:
           - test_name: svg
             schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_svg
-            expected_file: schematic.svg
+            expected_file: schematics/kicad-project.svg
             schematic_output_black_white: false
           - test_name: svg-black-white
             schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
             output_flag: schematic_output_svg
-            expected_file: schematic.svg
+            expected_file: schematics/kicad-project.svg
             schematic_output_black_white: true
           - test_name: bom
             schematic_file: tests/kicad-project-success/kicad-project.kicad_sch
