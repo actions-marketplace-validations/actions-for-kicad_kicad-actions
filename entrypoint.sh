@@ -45,12 +45,12 @@ then
   then
     if [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]]
     then
-      kicad-cli sch pdf \
+      kicad-cli sch export pdf \
         --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_PDF_FILE_NAME" \
         --black-and-white \
         "$INPUT_SCHEMATIC_FILE"
     else
-      kicad-cli sch pdf \
+      kicad-cli sch export pdf \
         --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_PDF_FILE_NAME" \
         "$INPUT_SCHEMATIC_FILE"
     fi
@@ -60,12 +60,12 @@ then
   then
     if [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]]
     then
-      kicad-cli sch svg \
+      kicad-cli sch export svg \
         --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_SVG_FILE_NAME" \
         --black-and-white \
         "$INPUT_SCHEMATIC_FILE"
     else
-      kicad-cli sch svg \
+      kicad-cli sch export svg \
         --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_SVG_FILE_NAME" \
         "$INPUT_SCHEMATIC_FILE"
     fi
@@ -73,14 +73,14 @@ then
 
   if [[ $INPUT_SCHEMATIC_OUTPUT_BOM == "true" ]]
   then
-    kicad-cli sch bom \
+    kicad-cli sch export bom \
       --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_BOM_FILE_NAME" \
       "$INPUT_SCHEMATIC_FILE"
   fi
 
   if [[ $INPUT_SCHEMATIC_OUTPUT_NETLIST == "true" ]]
   then
-    kicad-cli sch netlist \
+    kicad-cli sch export netlist \
       --output "`dirname $INPUT_SCHEMATIC_FILE`/$INPUT_SCH_OUTPUT_NETLIST_FILE_NAME" \
       "$INPUT_SCHEMATIC_FILE"
   fi
