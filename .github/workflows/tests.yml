@@ -339,7 +339,7 @@ jobs:
       - name: Run KiCad actions
         uses: ./
         with:
-          schematic_file_name: ./file.kicad_sch
+          schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
           run_erc: true
           schematic_output_pdf: true
 
