@@ -1,0 +1,9 @@
+# MacOS files
+.DS_Store
+
+# Kicad files
+kicad-project-backups
+fp-info-cache
+*.bak
+*.rpt
+*.kicad_pcb.lck

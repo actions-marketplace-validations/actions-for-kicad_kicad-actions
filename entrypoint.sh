@@ -4,3 +4,245 @@ set -e
 
 mkdir -p $HOME/.config
 cp -r /home/kicad/.config/kicad $HOME/.config/
+
+erc_violation=0 # ERC exit code
+drc_violation=0 # DRC exit code
+
+# Check if KiCad is installed
+if ! command -v kicad-cli &> /dev/null; then
+    echo "::error::KiCad is not installed."
+    exit 1
+fi
+
+# Check if KiCad version is 8.0 or higher
+kicad_version=$(kicad-cli --version | grep -oP '\d+\.\d+')
+required_version="8.0"
+
+if [ "$(printf '%s\n' "$required_version" "$kicad_version" | sort -V | head -n1)" != "$required_version" ]; then
+    echo "::error::KiCad version 8.0 or higher is required."
+    exit 1
+fi
+
+# Check if any schematic output/erc are selected without the file being present
+if [[ -z $INPUT_SCHEMATIC_FILE_NAME && (
+    $INPUT_RUN_ERC == "true" || 
+    $INPUT_SCHEMATIC_OUTPUT_PDF == "true" || 
+    $INPUT_SCHEMATIC_OUTPUT_SVG == "true" || 
+    $INPUT_SCHEMATIC_OUTPUT_BOM == "true" || 
+    $INPUT_SCHEMATIC_OUTPUT_NETLIST == "true" )
+]]; then
+    echo "::error::Schematic output/ERC options selected without a schematic file."
+    exit 1
+fi
+
+# Check if any PCB output/drc are selected without the file being present
+if [[ -z $INPUT_PCB_FILE_NAME && (
+    $INPUT_PCB_OUTPUT_DRILL == "true" )
+]]; then
+    echo "::error::PCB output/DRC options selected without a PCB file."
+    exit 1
+fi
+
+# Run schematic outputs
+if [[ -n $INPUT_SCHEMATIC_FILE_NAME ]]; then
+
+  # Run ERC
+  if [[ $INPUT_RUN_ERC == "true" ]]; then
+    kicad-cli sch erc \
+      --output "$INPUT_ERC_OUTPUT_FILE_NAME" \
+      --exit-code-violations \
+      "$INPUT_SCHEMATIC_FILE_NAME"
+    erc_violation=$?
+  fi
+
+  # Export schematic to PDF
+  if [[ $INPUT_SCHEMATIC_OUTPUT_PDF == "true" ]]; then
+    cmd=(kicad-cli sch export pdf --output "$INPUT_SCHEMATIC_OUTPUT_PDF_FILE_NAME")
+    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
+  fi
+
+  # Export schematic to SVG
+  if [[ $INPUT_SCHEMATIC_OUTPUT_SVG == "true" ]]; then
+    cmd=(kicad-cli sch export svg --output "$INPUT_SCHEMATIC_OUTPUT_SVG_FOLDER_NAME")
+    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
+  fi
+
+  # Export schematic to DXF
+  if [[ $INPUT_SCHEMATIC_OUTPUT_DXF == "true" ]]; then
+    cmd=(kicad-cli sch export dxf --output "$INPUT_SCHEMATIC_OUTPUT_DXF_FOLDER_NAME")
+    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
+  fi
+
+  # Export schematic to HPGL
+  if [[ $INPUT_SCHEMATIC_OUTPUT_HPGL == "true" ]]; then
+    cmd=(kicad-cli sch export hpgl --output "$INPUT_SCHEMATIC_OUTPUT_HPGL_FOLDER_NAME")
+    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
+  fi
+
+  # Export schematic to PS
+  if [[ $INPUT_SCHEMATIC_OUTPUT_PS == "true" ]]; then
+    cmd=(kicad-cli sch export ps --output "$INPUT_SCHEMATIC_OUTPUT_PS_FOLDER_NAME")
+    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
+  fi
+
+  # Export schematic BOM
+  if [[ $INPUT_SCHEMATIC_OUTPUT_BOM == "true" ]]; then
+    kicad-cli sch export bom \
+      --output "$INPUT_SCHEMATIC_OUTPUT_BOM_FILE_NAME" \
+      "$INPUT_SCHEMATIC_FILE_NAME"
+  fi
+
+  # Export schematic netlist
+  if [[ $INPUT_SCHEMATIC_OUTPUT_NETLIST == "true" ]]; then
+    kicad-cli sch export netlist \
+      --output "$INPUT_SCHEMATIC_OUTPUT_NETLIST_FILE_NAME" \
+      "$INPUT_SCHEMATIC_FILE_NAME"
+  fi
+fi
+
+# Run PCB outputs
+if [[ -n $INPUT_PCB_FILE_NAME ]]; then
+
+  # Run DRC
+  if [[ $INPUT_RUN_DRC == "true" ]]; then
+    kicad-cli pcb drc \
+      --output "$INPUT_DRC_OUTPUT_FILE_NAME" \
+      --exit-code-violations \
+      "$INPUT_PCB_FILE_NAME"
+    drc_violation=$?
+  fi
+
+  # Export PCB drill
+  if [[ $INPUT_PCB_OUTPUT_DRILL == "true" ]]; then
+    if [[ $INPUT_PCB_OUTPUT_DRILL_FORMAT != "excellon" && $INPUT_PCB_OUTPUT_DRILL_FORMAT != "gerber" ]]; then
+      echo "::error::Invalid drill format. Supported formats are 'excellon' and 'gerber'."
+      exit 1
+    fi
+
+    kicad-cli pcb export drill \
+      --output "$INPUT_PCB_OUTPUT_DRILL_FOLDER_NAME" \
+      --format "$INPUT_PCB_OUTPUT_DRILL_FORMAT" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB gerbers
+  if [[ $INPUT_PCB_OUTPUT_GERBERS == "true" ]]; then
+    if [[ $INPUT_PCB_OUTPUT_GERBERS_FORMAT != "folder" && $INPUT_PCB_OUTPUT_GERBERS_FORMAT != "zip" ]]; then
+      echo "::error::Invalid gerbers and drill format. Supported formats are 'folder' and 'zip'."
+      exit 1
+    fi
+
+    cmd=(kicad-cli pcb export gerbers --output "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME")
+    [[ -n $INPUT_PCB_OUTPUT_LAYERS ]] && cmd+=(--layers "$INPUT_PCB_OUTPUT_LAYERS")
+    "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
+
+    if [[ $INPUT_PCB_OUTPUT_GERBERS_FORMAT == "zip" ]]; then
+      zip -r "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME.zip" -j "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME"
+      rm -rf "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME"
+    fi
+  fi
+
+  # Export PCB gerbers and drill
+  if [[ $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL == "true" ]]; then
+    if [[ $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FORMAT != "folder" && $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FORMAT != "zip" ]]; then
+      echo "::error::Invalid gerbers and drill format. Supported formats are 'folder' and 'zip'."
+      exit 1
+    fi
+
+    cmd=(kicad-cli pcb export gerbers --output "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME")
+    [[ -n $INPUT_PCB_OUTPUT_LAYERS ]] && cmd+=(--layers "$INPUT_PCB_OUTPUT_LAYERS")
+    "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
+
+    kicad-cli pcb export drill \
+      --output "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME" \
+      --format "$INPUT_PCB_OUTPUT_DRILL_FORMAT" \
+      "$INPUT_PCB_FILE_NAME"
+
+    if [[ $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FORMAT == "zip" ]]; then
+      zip -r "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME.zip" -j "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME"
+      rm -rf "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME"
+    fi
+  fi
+
+  # Export PCB DXF
+  if [[ $INPUT_PCB_OUTPUT_DXF == "true" ]]; then
+    if [[ -z $INPUT_PCB_OUTPUT_LAYERS ]]; then
+      echo "::error::No layers set for PCB DXF output."
+      exit 1
+    fi
+
+    kicad-cli pcb export dxf \
+      --output "$INPUT_PCB_OUTPUT_DXF_FOLDER_NAME" \
+      --layers "$INPUT_PCB_OUTPUT_LAYERS" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB PDF
+  if [[ $INPUT_PCB_OUTPUT_PDF == "true" ]]; then
+    if [[ -z $INPUT_PCB_OUTPUT_LAYERS ]]; then
+      echo "::error::No layers set for PCB PDF output."
+      exit 1
+    fi
+
+    cmd=(kicad-cli pcb export pdf --output "$INPUT_PCB_OUTPUT_PDF_FILE_NAME" --layers "$INPUT_PCB_OUTPUT_LAYERS")
+    [[ $INPUT_PCB_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB SVG
+  if [[ $INPUT_PCB_OUTPUT_SVG == "true" ]]; then
+    if [[ -z $INPUT_PCB_OUTPUT_LAYERS ]]; then
+      echo "::error::No layers set for PCB SVG output."
+      exit 1
+    fi
+
+    cmd=(kicad-cli pcb export svg --output "$INPUT_PCB_OUTPUT_SVG_FILE_NAME" --layers "$INPUT_PCB_OUTPUT_LAYERS")
+    [[ $INPUT_PCB_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB POS
+  if [[ $INPUT_PCB_OUTPUT_POS == "true" ]]; then
+    if [[ $INPUT_PCB_OUTPUT_POS_FORMAT != "ascii" && $INPUT_PCB_OUTPUT_POS_FORMAT != "csv" && $INPUT_PCB_OUTPUT_POS_FORMAT != "gerber" ]]; then
+      echo "::error::Invalid POS format. Supported formats are 'ascii', 'csv' and 'gerber'."
+      exit 1
+    fi
+
+    if [[ $INPUT_PCB_OUTPUT_POS_SIDE != "both" && $INPUT_PCB_OUTPUT_POS_SIDE != "front" && $INPUT_PCB_OUTPUT_POS_SIDE != "back" ]]; then
+      echo "::error::Invalid POS side. Supported sides are 'both', 'front' and 'back'."
+      exit 1
+    fi
+
+    kicad-cli pcb export pos \
+      --output "$INPUT_PCB_OUTPUT_POS_FILE_NAME" \
+      --format "$INPUT_PCB_OUTPUT_POS_FORMAT" \
+      --side "$INPUT_PCB_OUTPUT_POS_SIDE" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB IPC-2581
+  if [[ $INPUT_PCB_OUTPUT_IPC2581 == "true" ]]; then
+    kicad-cli pcb export ipc2581 \
+      --output "$INPUT_PCB_OUTPUT_IPC2581_FILE_NAME" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB STEP
+  if [[ $INPUT_PCB_OUTPUT_STEP == "true" ]]; then
+    kicad-cli pcb export step \
+      --output "$INPUT_PCB_OUTPUT_STEP_FILE_NAME" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
+fi
+
+# Return non-zero exit code for ERC or DRC violations
+if [[ $erc_violation -gt 0 ]] || [[ $drc_violation -gt 0 ]]; then
+  exit 1
+else
+  exit 0
+fi
