@@ -3,6 +3,7 @@ name: Add main version tag
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   add-main-version-tag:
