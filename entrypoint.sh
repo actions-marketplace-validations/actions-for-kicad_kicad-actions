@@ -179,6 +179,32 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
     [[ $INPUT_PCB_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
     "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
   fi
+
+  # Export PCB POS
+  if [[ $INPUT_PCB_OUTPUT_POS == "true" ]]; then
+    kicad-cli pcb export pos \
+      --output "$INPUT_PCB_OUTPUT_POS_FILE_NAME" \
+      --format "$INPUT_PCB_OUTPUT_POS_FORMAT" \
+      --side "$INPUT_PCB_OUTPUT_POS_SIDE" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB IPC-2581
+  if [[ $INPUT_PCB_OUTPUT_IPC2581 == "true" ]]; then
+    kicad-cli pcb export ipc2581 \
+      --output "$INPUT_PCB_OUTPUT_IPC2581_FILE_NAME" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB IPC-D-356
+  if [[ $INPUT_PCB_OUTPUT_IPCD356 == "true" ]]; then
+    kicad-cli pcb export ipcd356 \
+      --output "$INPUT_PCB_OUTPUT_IPCD356_FILE_NAME" \
+      "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB STEP
+  # Export PCB render (9.0 only)
 fi
 
 # Return non-zero exit code for ERC or DRC violations

@@ -77,6 +77,7 @@ jobs:
             schematic_file_name: tests/kicad-project-failure/kicad-project.kicad_sch
             pcb_file_name: null
             result: failure
+            expected_file: erc.rpt
           - test_name: erc-success
             erc: true
             drc: false
@@ -89,6 +90,7 @@ jobs:
             schematic_file_name: null
             pcb_file_name: tests/kicad-project-failure/kicad-project.kicad_pcb
             result: failure
+            expected_file: drc.rpt
           - test_name: drc-success
             erc: false
             drc: true
@@ -114,6 +116,13 @@ jobs:
           fi
           if [[ "${{ matrix.result }}" == "success" && "${{ steps.check.outcome }}" == "failure" ]]; then
             echo "::error::Expected success, but step failed!"
+            exit 1
+          fi
+        shell: bash
+      - name: Verify output file
+        run: |
+          if [[ ! -f "${{ matrix.expected_file }}" ]]; then
+            echo "::error::Expected output file '${{ matrix.expected_file }}' not found!"
             exit 1
           fi
         shell: bash
@@ -213,6 +222,10 @@ jobs:
             "pdf-black-white",
             "svg",
             "svg-black-white",
+            "pos-ascii",
+            "pos-gerber",
+            "ipc2581",
+            "ipcd356",
           ]
         include:
           - test_name: drill-excellon
@@ -272,6 +285,20 @@ jobs:
             pcb_output_layers: "F.Cu"
             expected_files: "pcb.svg"
             pcb_output_black_white: true
+          - test_name: pos-ascii
+            output_flag: pcb_output_pos
+            expected_files: "pcb.pos"
+          - test_name: pos-gerber
+            output_flag: pcb_output_pos
+            expected_files: "pcb.pos"
+            pcb_output_pos_format: gerber
+            pcb_output_pos_side: top
+          - test_name: ipc2581
+            output_flag: pcb_output_ipc2581
+            expected_files: "pcb.xml"
+          - test_name: ipcd356
+            output_flag: pcb_output_ipcd356
+            expected_files: "pcb.d356"
 
     steps:
       - name: Checkout Repository
@@ -288,10 +315,11 @@ jobs:
           pcb_output_gerbers_and_drill_format: ${{ matrix.pcb_output_gerbers_and_drill_format || 'folder' }}
           pcb_output_layers: ${{ matrix.pcb_output_layers || null }}
           pcb_output_black_white: ${{ matrix.pcb_output_black_white || false }}
+          pcb_output_pos_format: ${{ matrix.pcb_output_pos_format || 'ascii' }}
+          pcb_output_pos_side: ${{ matrix.pcb_output_pos_side || 'both' }}
 
       - name: Verify output files
         run: |
-          ls -l
           echo "${{ matrix.expected_files }}" | while IFS= read -r file; do
             if [[ -n "$file" && ! -f "$file" ]]; then
               echo "::error::Expected output file '$file' not found!"
@@ -299,4 +327,3 @@ jobs:
             fi
           done
         shell: bash
-    # TODO CHECK ERC DRC OUTPUT FILE
