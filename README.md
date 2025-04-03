@@ -14,26 +14,26 @@ steps:
   - name: Run KiCad actions
     uses: actions-for-kicad/kicad-actions@v1-k9.0
     with:
-      schematic_file_name: "./file.kicad_sch"
+      schematic_file_name: ./file.kicad_sch
       run_erc: true
       schematic_output_pdf: true
 
-      pcb_file_name: "./file.kicad_pcb"
+      pcb_file_name: ./file.kicad_pcb
       run_drc: true
       pcb_output_gerbers_and_drill: true
-      pcb_output_gerbers_and_drill_format: "zip"
+      pcb_output_gerbers_and_drill_format: zip
 
   - name: Upload schematic
     uses: actions/upload-artifact@v4
     with:
-      name: "schematic.pdf"
-      path: "./schematic.pdf"
+      name: schematic.pdf
+      path: ./schematic.pdf
 
   - name: Upload gerbers and drill file
     uses: actions/upload-artifact@v4
     with:
-      name: "gerbers.zip"
-      path: "./gerbers.zip"
+      name: gerbers.zip
+      path: ./gerbers.zip
 ```
 
 # Inputs

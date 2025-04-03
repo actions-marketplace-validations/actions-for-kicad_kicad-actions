@@ -241,18 +241,18 @@ jobs:
             pcb_output_drill_format: gerber
           - test_name: gerbers-folder
             output_flag: pcb_output_gerbers
-            pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
+            pcb_output_layers: F.Cu,F.Mask,F.SilkS
             expected_files: |
               "gerbers/kicad-project-F_Cu.gtl"
               "gerbers/kicad-project-F_Mask.gts"
               "gerbers/kicad-project-F_Silkscreen.gto"
           - test_name: gerbers-zip
             output_flag: pcb_output_gerbers
-            expected_files: "gerbers.zip"
-            pcb_output_gerbers_format: "zip"
+            expected_files: gerbers.zip
+            pcb_output_gerbers_format: zip
           - test_name: gerbers-drill-folder
             output_flag: pcb_output_gerbers_and_drill
-            pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
+            pcb_output_layers: F.Cu,F.Mask,F.SilkS
             expected_files: |
               "gerbers/kicad-project-F_Cu.gtl"
               "gerbers/kicad-project-F_Mask.gts"
@@ -260,47 +260,47 @@ jobs:
               "gerbers/kicad-project.drl"
           - test_name: gerbers-drill-zip
             output_flag: pcb_output_gerbers_and_drill
-            expected_files: "gerbers.zip"
-            pcb_output_gerbers_and_drill_format: "zip"
+            expected_files: gerbers.zip
+            pcb_output_gerbers_and_drill_format: zip
           - test_name: dxf
             output_flag: pcb_output_dxf
-            pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
+            pcb_output_layers: F.Cu,F.Mask,F.SilkS
             expected_files: |
               "dxf/kicad-project-F_Cu.dxf"
               "dxf/kicad-project-F_Mask.dxf"
               "dxf/kicad-project-F_Silkscreen.dxf"
           - test_name: pdf
             output_flag: pcb_output_pdf
-            pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
-            expected_files: "pcb.pdf"
+            pcb_output_layers: F.Cu,F.Mask,F.SilkS
+            expected_files: pcb.pdf
           - test_name: pdf-black-white
             output_flag: pcb_output_pdf
-            pcb_output_layers: "F.Cu"
-            expected_files: "pcb.pdf"
+            pcb_output_layers: F.Cu
+            expected_files: pcb.pdf
             pcb_output_black_white: true
           - test_name: svg
             output_flag: pcb_output_svg
-            pcb_output_layers: "F.Cu,F.Mask,F.SilkS"
-            expected_files: "pcb.svg"
+            pcb_output_layers: F.Cu,F.Mask,F.SilkS
+            expected_files: pcb.svg
           - test_name: svg-black-white
             output_flag: pcb_output_svg
-            pcb_output_layers: "F.Cu"
-            expected_files: "pcb.svg"
+            pcb_output_layers: F.Cu
+            expected_files: pcb.svg
             pcb_output_black_white: true
           - test_name: pos-ascii
             output_flag: pcb_output_pos
-            expected_files: "pcb.pos"
+            expected_files: pcb.pos
           - test_name: pos-gerber
             output_flag: pcb_output_pos
-            expected_files: "pcb.pos"
+            expected_files: pcb.pos
             pcb_output_pos_format: gerber
             pcb_output_pos_side: front
           - test_name: ipc2581
             output_flag: pcb_output_ipc2581
-            expected_files: "pcb.xml"
+            expected_files: pcb.xml
           - test_name: step
             output_flag: pcb_output_step
-            expected_files: "pcb.step"
+            expected_files: pcb.step
 
     steps:
       - name: Checkout Repository
@@ -339,23 +339,23 @@ jobs:
       - name: Run KiCad actions
         uses: ./
         with:
-          schematic_file_name: "./file.kicad_sch"
+          schematic_file_name: ./file.kicad_sch
           run_erc: true
           schematic_output_pdf: true
 
-          pcb_file_name: "./file.kicad_pcb"
+          pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
           run_drc: true
           pcb_output_gerbers_and_drill: true
-          pcb_output_gerbers_and_drill_format: "zip"
+          pcb_output_gerbers_and_drill_format: zip
 
       - name: Upload schematic
         uses: actions/upload-artifact@v4
         with:
-          name: "schematic.pdf"
-          path: "./schematic.pdf"
+          name: schematic.pdf
+          path: ./schematic.pdf
 
       - name: Upload gerbers and drill file
         uses: actions/upload-artifact@v4
         with:
-          name: "gerbers.zip"
-          path: "./gerbers.zip"
+          name: gerbers.zip
+          path: ./gerbers.zip
