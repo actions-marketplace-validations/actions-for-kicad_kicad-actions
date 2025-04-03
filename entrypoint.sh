@@ -16,7 +16,9 @@ fi
 
 # Check if KiCad version is 8.0 or higher
 kicad_version=$(kicad-cli --version | grep -oP '\d+\.\d+')
-if [[ $(echo "$kicad_version < 8.0" | bc) -eq 1 ]]; then
+required_version="8.0"
+
+if [ "$(printf '%s\n' "$required_version" "$kicad_version" | sort -V | head -n1)" != "$required_version" ]; then
     echo "::error::KiCad version 8.0 or higher is required."
     exit 1
 fi
@@ -211,8 +213,8 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
       exit 1
     fi
 
-    if [[ $INPUT_PCB_OUTPUT_POS_SIDE != "both" && $INPUT_PCB_OUTPUT_POS_SIDE != "top" && $INPUT_PCB_OUTPUT_POS_SIDE != "bottom" ]]; then
-      echo "::error::Invalid POS side. Supported sides are 'both', 'top' and 'bottom'."
+    if [[ $INPUT_PCB_OUTPUT_POS_SIDE != "both" && $INPUT_PCB_OUTPUT_POS_SIDE != "front" && $INPUT_PCB_OUTPUT_POS_SIDE != "back" ]]; then
+      echo "::error::Invalid POS side. Supported sides are 'both', 'front' and 'back'."
       exit 1
     fi
 
