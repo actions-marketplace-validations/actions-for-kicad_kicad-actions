@@ -84,6 +84,7 @@ jobs:
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             pcb_file_name: null
             result: success
+            expected_file: erc.rpt
           - test_name: drc-failure
             erc: false
             drc: true
@@ -97,6 +98,7 @@ jobs:
             schematic_file_name: null
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
             result: success
+            expected_file: drc.rpt
     steps:
       - uses: actions/checkout@v4
       - name: Run ERC/DRC check
@@ -225,7 +227,7 @@ jobs:
             "pos-ascii",
             "pos-gerber",
             "ipc2581",
-            "ipcd356",
+            "step",
           ]
         include:
           - test_name: drill-excellon
@@ -292,13 +294,13 @@ jobs:
             output_flag: pcb_output_pos
             expected_files: "pcb.pos"
             pcb_output_pos_format: gerber
-            pcb_output_pos_side: top
+            pcb_output_pos_side: front
           - test_name: ipc2581
             output_flag: pcb_output_ipc2581
             expected_files: "pcb.xml"
-          - test_name: ipcd356
-            output_flag: pcb_output_ipcd356
-            expected_files: "pcb.d356"
+          - test_name: step
+            output_flag: pcb_output_step
+            expected_files: "pcb.step"
 
     steps:
       - name: Checkout Repository

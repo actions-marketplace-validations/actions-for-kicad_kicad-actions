@@ -197,14 +197,14 @@ inputs:
     description: "Output file name of IPC-2581 PCB"
     default: "pcb.xml"
 
-  # PCB IPC-D-356 output
-  pcb_output_ipcd356:
-    description: "Run the IPC-D-356 export of the PCB"
+  # PCB STEP output
+  pcb_output_step:
+    description: "Run the STEP export of the PCB"
     default: false
 
-  pcb_output_ipcd356_file_name:
-    description: "Output file name of IPC-D-356 PCB"
-    default: "pcb.d356"
+  pcb_output_step_file_name:
+    description: "Output file name of STEP PCB"
+    default: "pcb.step"
 
 runs:
   using: "docker"

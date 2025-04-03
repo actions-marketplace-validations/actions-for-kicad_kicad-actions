@@ -196,15 +196,12 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
       "$INPUT_PCB_FILE_NAME"
   fi
 
-  # Export PCB IPC-D-356
-  if [[ $INPUT_PCB_OUTPUT_IPCD356 == "true" ]]; then
-    kicad-cli pcb export ipcd356 \
-      --output "$INPUT_PCB_OUTPUT_IPCD356_FILE_NAME" \
+  # Export PCB STEP
+  if [[ $INPUT_PCB_OUTPUT_STEP == "true" ]]; then
+    kicad-cli pcb export step \
+      --output "$INPUT_PCB_OUTPUT_STEP_FILE_NAME" \
       "$INPUT_PCB_FILE_NAME"
   fi
-
-  # Export PCB STEP
-  # Export PCB render (9.0 only)
 fi
 
 # Return non-zero exit code for ERC or DRC violations
