@@ -28,7 +28,7 @@ inputs:
     default: "schematic.pdf"
 
   schematic_output_black_white:
-    description: "Run the PDF, SVG, DXF and PS export in black and white"
+    description: "Run the PDF, SVG, DXF and PS schematic export in black and white"
     default: false
 
   # Schematic SVG output
@@ -148,6 +148,28 @@ inputs:
   pcb_output_dxf_folder_name:
     description: "Output folder name of DXF pcb"
     default: "dxf"
+
+  # Pcb PDF output
+  pcb_output_pdf:
+    description: "Run the PDF export of the pcb"
+    default: false
+
+  pcb_output_pdf_file_name:
+    description: "Output file name of PDF pcb"
+    default: "pcb.pdf"
+
+  pcb_output_black_white:
+    description: "Run the PDF and SVG pcb export in black and white"
+    default: false
+
+  # Pcb PDF output
+  pcb_output_svg:
+    description: "Run the SVG export of the pcb"
+    default: false
+
+  pcb_output_svg_file_name:
+    description: "Output file name of SVG pcb"
+    default: "pcb.svg"
 
 runs:
   using: "docker"

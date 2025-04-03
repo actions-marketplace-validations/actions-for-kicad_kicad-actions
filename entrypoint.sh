@@ -146,7 +146,7 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
   # Export PCB DXF
   if [[ $INPUT_PCB_OUTPUT_DXF == "true" ]]; then
     if [[ -z $INPUT_PCB_OUTPUT_LAYERS ]]; then
-      echo "::error::No layers set for PCB output."
+      echo "::error::No layers set for PCB DXF output."
       exit 1
     fi
 
@@ -154,6 +154,30 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
       --output "$INPUT_PCB_OUTPUT_DXF_FOLDER_NAME" \
       --layers "$INPUT_PCB_OUTPUT_LAYERS" \
       "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB PDF
+  if [[ $INPUT_PCB_OUTPUT_PDF == "true" ]]; then
+    if [[ -z $INPUT_PCB_OUTPUT_LAYERS ]]; then
+      echo "::error::No layers set for PCB PDF output."
+      exit 1
+    fi
+
+    cmd=(kicad-cli pcb export pdf --output "$INPUT_PCB_OUTPUT_PDF_FILE_NAME" --layers "$INPUT_PCB_OUTPUT_LAYERS")
+    [[ $INPUT_PCB_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
+  fi
+
+  # Export PCB SVG
+  if [[ $INPUT_PCB_OUTPUT_SVG == "true" ]]; then
+    if [[ -z $INPUT_PCB_OUTPUT_LAYERS ]]; then
+      echo "::error::No layers set for PCB SVG output."
+      exit 1
+    fi
+
+    cmd=(kicad-cli pcb export svg --output "$INPUT_PCB_OUTPUT_SVG_FILE_NAME" --layers "$INPUT_PCB_OUTPUT_LAYERS")
+    [[ $INPUT_PCB_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
   fi
 fi
 
