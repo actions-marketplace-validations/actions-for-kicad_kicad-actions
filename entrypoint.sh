@@ -8,9 +8,18 @@ cp -r /home/kicad/.config/kicad $HOME/.config/
 erc_violation=0 # ERC exit code
 drc_violation=0 # DRC exit code
 
-# TODO ADD VERSION CHECK MINIMAL 8.0
-# TODO ADD VERSION CHECK FOR SPECIFIC 9.0 COMMANDS
+# Check if KiCad is installed
+if ! command -v kicad-cli &> /dev/null; then
+    echo "::error::KiCad is not installed."
+    exit 1
+fi
 
+# Check if KiCad version is 8.0 or higher
+kicad_version=$(kicad-cli --version | grep -oP '\d+\.\d+')
+if [[ $(echo "$kicad_version < 8.0" | bc) -eq 1 ]]; then
+    echo "::error::KiCad version 8.0 or higher is required."
+    exit 1
+fi
 
 # Check if any schematic output/erc are selected without the file being present
 if [[ -z $INPUT_SCHEMATIC_FILE_NAME && (
@@ -108,6 +117,11 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
 
   # Export PCB drill
   if [[ $INPUT_PCB_OUTPUT_DRILL == "true" ]]; then
+    if [[ $INPUT_PCB_OUTPUT_DRILL_FORMAT != "excellon" && $INPUT_PCB_OUTPUT_DRILL_FORMAT != "gerber" ]]; then
+      echo "::error::Invalid drill format. Supported formats are 'excellon' and 'gerber'."
+      exit 1
+    fi
+
     kicad-cli pcb export drill \
       --output "$INPUT_PCB_OUTPUT_DRILL_FOLDER_NAME" \
       --format "$INPUT_PCB_OUTPUT_DRILL_FORMAT" \
@@ -116,6 +130,11 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
 
   # Export PCB gerbers
   if [[ $INPUT_PCB_OUTPUT_GERBERS == "true" ]]; then
+    if [[ $INPUT_PCB_OUTPUT_GERBERS_FORMAT != "folder" && $INPUT_PCB_OUTPUT_GERBERS_FORMAT != "zip" ]]; then
+      echo "::error::Invalid gerbers and drill format. Supported formats are 'folder' and 'zip'."
+      exit 1
+    fi
+
     cmd=(kicad-cli pcb export gerbers --output "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME")
     [[ -n $INPUT_PCB_OUTPUT_LAYERS ]] && cmd+=(--layers "$INPUT_PCB_OUTPUT_LAYERS")
     "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
@@ -128,6 +147,11 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
 
   # Export PCB gerbers and drill
   if [[ $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL == "true" ]]; then
+    if [[ $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FORMAT != "folder" && $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FORMAT != "zip" ]]; then
+      echo "::error::Invalid gerbers and drill format. Supported formats are 'folder' and 'zip'."
+      exit 1
+    fi
+
     cmd=(kicad-cli pcb export gerbers --output "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME")
     [[ -n $INPUT_PCB_OUTPUT_LAYERS ]] && cmd+=(--layers "$INPUT_PCB_OUTPUT_LAYERS")
     "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
@@ -182,6 +206,16 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
 
   # Export PCB POS
   if [[ $INPUT_PCB_OUTPUT_POS == "true" ]]; then
+    if [[ $INPUT_PCB_OUTPUT_POS_FORMAT != "ascii" && $INPUT_PCB_OUTPUT_POS_FORMAT != "csv" && $INPUT_PCB_OUTPUT_POS_FORMAT != "gerber" ]]; then
+      echo "::error::Invalid POS format. Supported formats are 'ascii', 'csv' and 'gerber'."
+      exit 1
+    fi
+
+    if [[ $INPUT_PCB_OUTPUT_POS_SIDE != "both" && $INPUT_PCB_OUTPUT_POS_SIDE != "top" && $INPUT_PCB_OUTPUT_POS_SIDE != "bottom" ]]; then
+      echo "::error::Invalid POS side. Supported sides are 'both', 'top' and 'bottom'."
+      exit 1
+    fi
+
     kicad-cli pcb export pos \
       --output "$INPUT_PCB_OUTPUT_POS_FILE_NAME" \
       --format "$INPUT_PCB_OUTPUT_POS_FORMAT" \
@@ -210,6 +244,3 @@ if [[ $erc_violation -gt 0 ]] || [[ $drc_violation -gt 0 ]]; then
 else
   exit 0
 fi
-
-# TODO check if pcb output drill format is a valid option
-# TODO check if pcb output gerbers format is a valid option
