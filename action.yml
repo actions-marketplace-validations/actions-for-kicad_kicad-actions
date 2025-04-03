@@ -120,16 +120,25 @@ inputs:
     description: "Output folder name of gerber files"
     default: "gerbers"
 
-  pcb_output_gerbers_zip:
-    description: "Zip the gerber files"
-    default: false
-
-  pcb_output_gerbers_zip_file_name:
-    description: "Output file name of gerber zip file"
-    default: "gerbers.zip"
+  pcb_output_gerbers_format:
+    description: "Zip the gerber files. Options: folder, zip"
+    default: "folder"
 
   pcb_output_layers:
     description: "Output layers of the PCB"
+
+  # PCB gerbers and drill output
+  pcb_output_gerbers_and_drill:
+    description: "Run the gerber and drill export of the PCB"
+    default: false
+
+  pcb_output_gerbers_and_drill_folder_name:
+    description: "Output folder name of gerber and drill files"
+    default: "gerbers"
+
+  pcb_output_gerbers_and_drill_format:
+    description: "Zip the gerber and drill files. Options: folder, zip"
+    default: "folder"
 
   # Pcb DXF output
   pcb_output_dxf:
