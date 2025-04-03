@@ -337,7 +337,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run KiCad actions
-        uses: actions-for-kicad/kicad-actions@v1-k9.0
+        uses: ./
         with:
           schematic_file_name: "./file.kicad_sch"
           run_erc: true
