@@ -1,5 +1,5 @@
 name: "KiCad actions"
-description: "Install and setup kicad."
+description: "A GitHub action that can generate and check KiCad schematics and PCBs."
 branding:
   icon: "cpu"
   color: "green"
