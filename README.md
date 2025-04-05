@@ -9,8 +9,7 @@ Every release of this action is tagged with two version numbers:
 - 📦 **Action version** — Version of this GitHub Action
 - ⚙️ **KiCad version** — Version of KiCad used inside the action
 
-The release are formatted as follows:
-
+The releases are formatted as follows:
 ```
 v{action-version}-k{KiCad-version}
 ```
