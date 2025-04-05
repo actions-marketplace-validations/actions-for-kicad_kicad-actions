@@ -1,8 +1,24 @@
 # KiCad actions
 
-A GitHub action that can generate and check KiCad schematics and PCB's.
+This GitHub Action provides a way to run [KiCad](https://www.kicad.org/) in your CI pipelines.
 
-# Usage
+# 🧾 Versioning
+
+Every release of this action is tagged with two version numbers:
+
+- 📦 **Action version** — Version of this GitHub Action
+- ⚙️ **KiCad version** — Version of KiCad used inside the action
+
+The releases are formatted as follows:
+```
+v{action-version}-k{KiCad-version}
+```
+
+For example `v1-k9.0`. This houses version one of this action and version 9.0 from KiCad.
+
+Check the [releases](https://github.com/actions-for-kicad/kicad-actions/releases) to see all available versions.
+
+# 🚀 Usage
 
 See [action.yml](action.yml)
 
@@ -36,7 +52,7 @@ steps:
       path: ./gerbers.zip
 ```
 
-# Inputs
+# 📥 Inputs
 
 ## `schematic_file_name`
 
@@ -376,10 +392,14 @@ Default: `pcb.step`
 
 Description: Output file name of STEP PCB.
 
-# License
+# 📤 Outputs
+
+This action exports multiple files based on the inputs that are given.
+
+# 📄 License
 
 The scripts and documentation in this project are released under the [MIT license](LICENSE).
 
-# Contributions
+# 🧑‍💻 Contributions
 
 Contributions are welcome! Please help me expand and maintain this repository.
