@@ -50,7 +50,7 @@ jobs:
           git push origin $TAG
           gh release create $TAG --title "v${{ env.action_version }}-k${{ matrix.kicad_version }}" --generate-notes
 
-          MAIN_VERSION_TAG=v$(echo ${{ env.action_version }} | grep -oE '^[0-9]+')
+          MAIN_VERSION_TAG="v$(echo ${{ env.action_version }} | grep -oE '^[0-9]+')-k${{ matrix.kicad_version }}"
           git tag -f $MAIN_VERSION_TAG
           git push -f origin $MAIN_VERSION_TAG
         env:
