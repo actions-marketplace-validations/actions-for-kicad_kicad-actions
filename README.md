@@ -2,6 +2,12 @@
 
 A GitHub action that can generate and check KiCad schematics and PCB's.
 
+# Versioning
+
+This action is build for different KiCad versions, that is why the
+
+- To see all the different releases please visit the release page
+
 # Usage
 
 See [action.yml](action.yml)
