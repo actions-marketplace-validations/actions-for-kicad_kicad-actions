@@ -166,6 +166,20 @@ Default: `bom.csv`\
 \
 Description: Output file name of the BOM.
 
+## `schematic_output_bom_fields`
+
+Required: `False`\
+Default: `Reference,Value,Footprint,${QUANTITY},${DNP}`\
+\
+Description: Output fields in the BOM file. `*` includes all fields.
+
+## `schematic_output_bom_labels`
+
+Required: `False`\
+Default: `Refs,Value,Footprint,Qty,DNP`\
+\
+Description: Output labels in the BOM file.
+
 ## `schematic_output_netlist`
 
 Required: `False`\
