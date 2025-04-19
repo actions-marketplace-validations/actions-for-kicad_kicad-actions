@@ -146,6 +146,7 @@ jobs:
             "ps",
             "ps-black-white",
             "bom",
+            "bom-custom",
             "netlist",
           ]
         include:
@@ -183,6 +184,10 @@ jobs:
           - test_name: bom
             output_flag: schematic_output_bom
             expected_file: bom.csv
+          - test_name: bom-custom
+            output_flag: schematic_output_bom
+            expected_file: bom.csv
+            schematic_output_bom_fields: "Reference,Value,Footprint"
           - test_name: netlist
             output_flag: schematic_output_netlist
             expected_file: netlist.net
@@ -197,6 +202,7 @@ jobs:
           schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
           ${{ matrix.output_flag }}: true
           schematic_output_black_white: ${{ matrix.schematic_output_black_white || false }}
+          schematic_output_bom_fields: ${{ matrix.schematic_output_bom_fields || 'Reference,Value,Footprint,${QUANTITY},${DNP}' }}
 
       - name: Verify output file
         run: |

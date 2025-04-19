@@ -94,6 +94,8 @@ if [[ -n $INPUT_SCHEMATIC_FILE_NAME ]]; then
   if [[ $INPUT_SCHEMATIC_OUTPUT_BOM == "true" ]]; then
     kicad-cli sch export bom \
       --output "$INPUT_SCHEMATIC_OUTPUT_BOM_FILE_NAME" \
+      --fields "$INPUT_SCHEMATIC_OUTPUT_BOM_FIELDS" \
+      --labels "$INPUT_SCHEMATIC_OUTPUT_BOM_LABELS" \
       "$INPUT_SCHEMATIC_FILE_NAME"
   fi
 

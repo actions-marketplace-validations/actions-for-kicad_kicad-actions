@@ -76,6 +76,14 @@ inputs:
     description: "Output file name of the BOM"
     default: "bom.csv"
 
+  schematic_output_bom_fields:
+    description: "Output fields in the BOM file. `*` includes all fields."
+    default: "Reference,Value,Footprint,${QUANTITY},${DNP}"
+
+  schematic_output_bom_labels:
+    description: "Output labels in the BOM file."
+    default: "Refs,Value,Footprint,Qty,DNP"
+
   # Schematic netlist output
   schematic_output_netlist:
     description: "Run the netlist export of the schematic"
