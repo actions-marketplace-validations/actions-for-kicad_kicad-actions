@@ -895,7 +895,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "test-library:Line"
+		(symbol "test-sym-library:Line"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1519,7 +1519,7 @@
 		)
 	)
 	(symbol
-		(lib_id "test-library:Line")
+		(lib_id "test-sym-library:Line")
 		(at 180.34 97.79 0)
 		(unit 1)
 		(exclude_from_sim no)
