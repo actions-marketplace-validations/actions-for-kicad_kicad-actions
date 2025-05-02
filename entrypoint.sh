@@ -88,8 +88,6 @@ fi
 
 # Check if footprint library is set
 if [[ -n $INPUT_SYMBOL_LIBRARIES ]]; then
-    echo "::error::Adding symbol libraries to sym-lib-table"
-
     # Parse symbol libraries
     declare -A symbol_libraries
     IFS=',' read -ra symbol_pairs <<< "$INPUT_SYMBOL_LIBRARIES"

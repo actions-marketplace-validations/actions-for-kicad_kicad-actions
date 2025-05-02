@@ -89,10 +89,10 @@ jobs:
             drc: false
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             pcb_file_name: null
-            result: success
+            result: failure
             expected_file: erc.rpt
           - test_name: erc-success
-            symbol_libraries: "test-sym-library=tests/kicad-project-failure/test-sym-library.kicad_sym"
+            symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
             erc: true
             drc: false
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
@@ -128,7 +128,6 @@ jobs:
       - name: Verify ERC/DRC step result
         run: |
           cat "${{ matrix.expected_file }}"
-          cat "$HOME/.config/kicad/9.0/sym-lib-table"
           if [[ "${{ matrix.result }}" == "failure" && "${{ steps.check.outcome }}" != "failure" ]]; then
             echo "::error::Expected failure, but step succeeded!"
             exit 1
