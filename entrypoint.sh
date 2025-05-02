@@ -31,7 +31,7 @@ fi
 add_symbol_lib() {
   local name="$1"
   local path="$2"
-  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"${GITHUB_WORKSPACE}$path\")(options \"\")(descr \"\"))"
+  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"${GITHUB_WORKSPACE}/$path\")(options \"\")(descr \"\"))"
 
   # Create file if it doesn't exist
   if [ ! -f "$symbol_lib_path" ]; then
