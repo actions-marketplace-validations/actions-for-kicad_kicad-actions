@@ -31,11 +31,11 @@ fi
 add_symbol_lib() {
   local name="$1"
   local path="$2"
-  local entry="  (lib (name \"$name\")\n       (type Legacy)\n       (uri \"$path\")\n       (options \"\")\n       (descr \"External symbol library\"))"
+  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"${{ github.workspace }}$path\")(options \"\")(descr \"\"))"
 
   # Create file if it doesn't exist
   if [ ! -f "$symbol_lib_path" ]; then
-    echo -e "(sym_lib_table\n  (version 7)\n)" > "$symbol_lib_path"
+    echo -e "(sym_lib_table\n)" > "$symbol_lib_path"
     echo "Created new sym-lib-table at $symbol_lib_path"
   fi
 
@@ -88,6 +88,7 @@ fi
 
 echo "::error::Input parameters:"
 echo $INPUT_SYMBOL_LIBRARIES
+echo "${{ github.workspace }}"
 echo $symbol_lib_path
 
 # Check if footprint library is set
