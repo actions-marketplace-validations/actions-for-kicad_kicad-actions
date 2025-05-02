@@ -93,7 +93,7 @@ jobs:
             result: success
             expected_file: erc.rpt
           - test_name: erc-success
-            symbol_libraries: "test-library=tests/kicad-project-success/test-library.kicad_sym"
+            symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
             erc: true
             drc: false
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
