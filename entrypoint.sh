@@ -28,6 +28,7 @@ fi
 
 echo "::error::Test"
 echo "$(readlink -f "$0")"
+cat "/tests/kicad-project-failure/kicad-project.kicad_sch"
 # Define functions for input libraries
 # Function to add symbol library
 add_symbol_lib() {
