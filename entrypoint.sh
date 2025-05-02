@@ -107,7 +107,7 @@ fi
 
 echo "::error::Test vars:"
 echo $symbol_lib_path
-cat $footprint_lib_path
+cat $symbol_lib_path
 
 # Check if footprint library is set
 if [[ -n $INPUT_FOOTPRINT_LIBRARIES ]]; then
