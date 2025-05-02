@@ -65,7 +65,7 @@ Description: Location of the .kicad_sch file.
 
 Required: `False`\
 \
-Description: Comma-separated list of symbol libraries in the format name=path.
+Description: Comma-separated list of symbol libraries in the format name=path. The path should be relative to the `.kicad_pro` file.
 
 ## `run_erc`
 
@@ -210,7 +210,7 @@ Description: Location of the .kicad_pcb file.
 
 Required: `False`\
 \
-Description: Comma-separated list of footprint libraries in the format name=path.
+Description: Comma-separated list of footprint libraries in the format name=path. The path should be relative to the `.kicad_pro` file.
 
 ## `run_drc`
 

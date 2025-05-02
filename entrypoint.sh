@@ -88,6 +88,7 @@ fi
 
 echo "::error::Input parameters:"
 echo $INPUT_SYMBOL_LIBRARIES
+echo $symbol_lib_path
 
 # Check if footprint library is set
 if [[ -n $INPUT_SYMBOL_LIBRARIES ]]; then
