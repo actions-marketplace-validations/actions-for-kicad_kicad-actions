@@ -18,7 +18,7 @@ fi
 kicad_version=$(kicad-cli --version | grep -oP '\d+\.\d+')
 required_version="8.0"
 config_dir="$HOME/.config/kicad/$kicad_version"
-symbol_lib_path="$config_dir/sym-lib-table"
+symbol_lib_path="${GITHUB_WORKSPACE}/tests/kicad-project-success/sym-lib-table"
 footprint_lib_path="$config_dir/fp-lib-table"
 
 if [ "$(printf '%s\n' "$required_version" "$kicad_version" | sort -V | head -n1)" != "$required_version" ]; then
@@ -33,7 +33,7 @@ echo "$(ls)"
 add_symbol_lib() {
   local name="$1"
   local path="$2"
-  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"${GITHUB_WORKSPACE}/$path\")(options \"\")(descr \"\"))"
+  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"$path\")(options \"\")(descr \"\"))"
 
   # Create file if it doesn't exist
   if [ ! -f "$symbol_lib_path" ]; then
