@@ -127,6 +127,7 @@ jobs:
         continue-on-error: true
       - name: Verify ERC/DRC step result
         run: |
+          cat "${{ matrix.expected_file }}"
           if [[ "${{ matrix.result }}" == "failure" && "${{ steps.check.outcome }}" != "failure" ]]; then
             echo "::error::Expected failure, but step succeeded!"
             exit 1
