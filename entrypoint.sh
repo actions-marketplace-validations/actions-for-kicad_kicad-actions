@@ -86,12 +86,12 @@ if [[ -z $INPUT_PCB_FILE_NAME && (
     exit 1
 fi
 
-echo "::debug::Input parameters:"
+echo "::error::Input parameters:"
 echo $INPUT_SYMBOL_LIBRARIES
 
 # Check if footprint library is set
 if [[ -n $INPUT_SYMBOL_LIBRARIES ]]; then
-    echo "::debug::Adding symbol libraries to sym-lib-table"
+    echo "::error::Adding symbol libraries to sym-lib-table"
 
     # Parse symbol libraries
     declare -A symbol_libraries
