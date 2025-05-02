@@ -128,7 +128,7 @@ jobs:
       - name: Verify ERC/DRC step result
         run: |
           cat "${{ matrix.expected_file }}"
-          cat "$HOME/.config/kicad/8.0/sym-lib-table"
+          cat "$HOME/.config/kicad/9.0/sym-lib-table"
           if [[ "${{ matrix.result }}" == "failure" && "${{ steps.check.outcome }}" != "failure" ]]; then
             echo "::error::Expected failure, but step succeeded!"
             exit 1
