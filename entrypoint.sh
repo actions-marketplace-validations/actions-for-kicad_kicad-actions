@@ -31,15 +31,26 @@ fi
 add_symbol_lib() {
   local name="$1"
   local path="$2"
-  local entry="    (lib (name $name)\n         (type Legacy)\n         (uri \"$path\")\n         (options \"\")\n         (descr \"External symbol library\"))"
+  local entry="  (lib (name \"$name\")\n       (type Legacy)\n       (uri \"$path\")\n       (options \"\")\n       (descr \"External symbol library\"))"
 
-  if grep -q "(name $name)" "$symbol_lib_path"; then
+  # Create file if it doesn't exist
+  if [ ! -f "$symbol_lib_path" ]; then
+    echo -e "(sym_lib_table\n  (version 7)\n)" > "$symbol_lib_path"
+    echo "Created new sym-lib-table at $symbol_lib_path"
+  fi
+
+  # Check if the library already exists
+  if grep -q "(name \"$name\")" "$symbol_lib_path"; then
     echo "Symbol library '$name' already exists in sym-lib-table."
   else
-    sed -i.bak "/^)/i \\\n$entry" "$symbol_lib_path"
+    # Insert the new entry before the last line (closing parenthesis)
+    sed -i.bak "\$ i\\
+$entry
+" "$symbol_lib_path"
     echo "Symbol library '$name' added to sym-lib-table."
   fi
 }
+
 
 # Function to add footprint library
 add_footprint_lib() {
