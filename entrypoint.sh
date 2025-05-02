@@ -26,6 +26,7 @@ if [ "$(printf '%s\n' "$required_version" "$kicad_version" | sort -V | head -n1)
     exit 1
 fi
 
+echo realpath "$0"
 # Define functions for input libraries
 # Function to add symbol library
 add_symbol_lib() {
