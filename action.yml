@@ -9,6 +9,11 @@ inputs:
   schematic_file_name:
     description: "Location of the .kicad_sch file"
 
+  # Symbol library file
+  symbol_libraries:
+    description: "Comma-separated list of symbol libraries in the format name=path"
+    required: false
+
   # ERC run
   run_erc:
     description: "Run the ERC on the schematic"
@@ -96,6 +101,11 @@ inputs:
   # PCB input file
   pcb_file_name:
     description: "Location of the .kicad_pcb file"
+
+  # Footprint library file
+  footprint_libraries:
+    description: "Comma-separated list of footprint libraries in the format name=path"
+    required: false
 
   # DRC run
   run_drc:

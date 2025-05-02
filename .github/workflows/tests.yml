@@ -69,7 +69,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_name: ["erc-failure", "erc-success", "drc-failure", "drc-success"]
+        test_name:
+          [
+            "erc-failure",
+            "erc-failure-no-lib",
+            "erc-success",
+            "drc-failure",
+            "drc-success",
+          ]
         include:
           - test_name: erc-failure
             erc: true
@@ -78,7 +85,15 @@ jobs:
             pcb_file_name: null
             result: failure
             expected_file: erc.rpt
+          - test_name: erc-failure-no-lib
+            erc: true
+            drc: false
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
+            pcb_file_name: null
+            result: success
+            expected_file: erc.rpt
           - test_name: erc-success
+            symbol_libraries: "test-library=tests/kicad-project-success/test-library.kicad_sym"
             erc: true
             drc: false
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch

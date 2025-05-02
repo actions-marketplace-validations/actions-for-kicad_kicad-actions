@@ -7,3 +7,4 @@ fp-info-cache
 *.bak
 *.rpt
 *.kicad_pcb.lck
+sym-lib-table

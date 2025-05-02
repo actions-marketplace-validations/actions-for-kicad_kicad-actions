@@ -61,6 +61,12 @@ Required: `False`\
 \
 Description: Location of the .kicad_sch file.
 
+## `symbol_libraries`
+
+Required: `False`\
+\
+Description: Comma-separated list of symbol libraries in the format name=path.
+
 ## `run_erc`
 
 Required: `False`\
@@ -199,6 +205,12 @@ Description: Output file name of the netlist.
 Required: `False`\
 \
 Description: Location of the .kicad_pcb file.
+
+## `footprint_libraries`
+
+Required: `False`\
+\
+Description: Comma-separated list of footprint libraries in the format name=path.
 
 ## `run_drc`
 
