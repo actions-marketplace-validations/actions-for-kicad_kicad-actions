@@ -27,7 +27,7 @@ if [ "$(printf '%s\n' "$required_version" "$kicad_version" | sort -V | head -n1)
 fi
 
 echo "::error::Test"
-echo "$(pwd)"
+echo "$(ls)"
 # Define functions for input libraries
 # Function to add symbol library
 add_symbol_lib() {
