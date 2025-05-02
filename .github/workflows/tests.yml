@@ -124,6 +124,7 @@ jobs:
           run_drc: ${{ matrix.drc }}
           schematic_file_name: ${{ matrix.schematic_file_name }}
           pcb_file_name: ${{ matrix.pcb_file_name }}
+          symbol_libraries: ${{ matrix.symbol_libraries || null }}
         continue-on-error: true
       - name: Verify ERC/DRC step result
         run: |
