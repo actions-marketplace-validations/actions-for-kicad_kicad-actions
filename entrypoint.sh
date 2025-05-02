@@ -26,14 +26,12 @@ if [ "$(printf '%s\n' "$required_version" "$kicad_version" | sort -V | head -n1)
     exit 1
 fi
 
-echo "::error::Test"
-echo "$(ls)"
 # Define functions for input libraries
 # Function to add symbol library
 add_symbol_lib() {
   local name="$1"
   local path="$2"
-  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"$path\")(options \"\")(descr \"\"))"
+  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"${KIPRJMOD}/$path\")(options \"\")(descr \"\"))"
 
   # Create file if it doesn't exist
   if [ ! -f "$symbol_lib_path" ]; then
@@ -88,11 +86,6 @@ if [[ -z $INPUT_PCB_FILE_NAME && (
     exit 1
 fi
 
-echo "::error::Input parameters:"
-echo $INPUT_SYMBOL_LIBRARIES
-echo "${GITHUB_WORKSPACE}"
-echo $symbol_lib_path
-
 # Check if footprint library is set
 if [[ -n $INPUT_SYMBOL_LIBRARIES ]]; then
     echo "::error::Adding symbol libraries to sym-lib-table"
@@ -112,7 +105,9 @@ if [[ -n $INPUT_SYMBOL_LIBRARIES ]]; then
     done
 fi
 
-cat /github/home/.config/kicad/9.0/sym-lib-table
+echo "::error::Test vars:"
+echo $symbol_lib_path
+cat $footprint_lib_path
 
 # Check if footprint library is set
 if [[ -n $INPUT_FOOTPRINT_LIBRARIES ]]; then
