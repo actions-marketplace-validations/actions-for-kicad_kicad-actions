@@ -109,6 +109,8 @@ if [[ -n $INPUT_SYMBOL_LIBRARIES ]]; then
     done
 fi
 
+cat /github/home/.config/kicad/9.0/sym-lib-table
+
 # Check if footprint library is set
 if [[ -n $INPUT_FOOTPRINT_LIBRARIES ]]; then
     # Parse footprint libraries
