@@ -93,6 +93,7 @@ jobs:
             erc: true
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
+            footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
             result: success
             expected_file: erc.rpt
           - test_name: drc-failure

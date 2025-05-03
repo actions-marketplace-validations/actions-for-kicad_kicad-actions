@@ -129,8 +129,6 @@ if [[ -n $INPUT_FOOTPRINT_LIBRARIES ]]; then
     done
 fi
 
-cat "$footprint_lib_path"
-
 # Run schematic outputs
 if [[ -n $INPUT_SCHEMATIC_FILE_NAME ]]; then
 
