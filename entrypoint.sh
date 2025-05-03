@@ -17,11 +17,63 @@ fi
 # Check if KiCad version is 8.0 or higher
 kicad_version=$(kicad-cli --version | grep -oP '\d+\.\d+')
 required_version="8.0"
+config_dir="$HOME/.config/kicad/$kicad_version"
+symbol_lib_path="$config_dir/sym-lib-table"
+footprint_lib_path="$config_dir/fp-lib-table"
 
 if [ "$(printf '%s\n' "$required_version" "$kicad_version" | sort -V | head -n1)" != "$required_version" ]; then
     echo "::error::KiCad version 8.0 or higher is required."
     exit 1
 fi
+
+# Define functions for input libraries
+# Function to add symbol library
+add_symbol_lib() {
+  local name="$1"
+  local path="$2"
+  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"$GITHUB_WORKSPACE/$path\")(options \"\")(descr \"\"))"
+
+  # Create file if it doesn't exist
+  if [ ! -f "$symbol_lib_path" ]; then
+    echo -e "(sym_lib_table\n)" > "$symbol_lib_path"
+    echo "Created new sym-lib-table at $symbol_lib_path"
+  fi
+
+  # Check if the library already exists
+  if grep -q "(name \"$name\")" "$symbol_lib_path"; then
+    echo "Symbol library '$name' already exists in sym-lib-table."
+  else
+    # Insert the new entry before the last line (closing parenthesis)
+    sed -i.bak "\$ i\\
+$entry
+" "$symbol_lib_path"
+    echo "Symbol library '$name' added to sym-lib-table."
+  fi
+}
+
+# Function to add footprint library
+add_footprint_lib() {
+  local name="$1"
+  local path="$2"
+  local entry="  (lib (name \"$name\")(type \"KiCad\")(uri \"$GITHUB_WORKSPACE/$path\")(options \"\")(descr \"\"))"
+
+  # Create file if it doesn't exist
+  if [ ! -f "$footprint_lib_path" ]; then
+    echo -e "(fp_lib_table\n)" > "$footprint_lib_path"
+    echo "Created new fp-lib-table at $footprint_lib_path"
+  fi
+
+  # Check if the library already exists
+  if grep -q "(name $name)" "$footprint_lib_path"; then
+    echo "Footprint library '$name' already exists in fp-lib-table."
+  else
+    # Insert the new entry before the last line (closing parenthesis)
+    sed -i.bak "\$ i\\
+$entry
+" "$footprint_lib_path"
+    echo "Symbol library '$name' added to fp-lib-table."
+  fi
+}
 
 # Check if any schematic output/erc are selected without the file being present
 if [[ -z $INPUT_SCHEMATIC_FILE_NAME && (
@@ -41,6 +93,40 @@ if [[ -z $INPUT_PCB_FILE_NAME && (
 ]]; then
     echo "::error::PCB output/DRC options selected without a PCB file."
     exit 1
+fi
+
+# Check if footprint library is set
+if [[ -n $INPUT_SYMBOL_LIBRARIES ]]; then
+    # Parse symbol libraries
+    declare -A symbol_libraries
+    IFS=',' read -ra symbol_pairs <<< "$INPUT_SYMBOL_LIBRARIES"
+    for pair in "${symbol_pairs[@]}"; do
+      name="${pair%%=*}"
+      path="${pair#*=}"
+      symbol_libraries["$name"]="$path"
+    done
+
+    # Loop through and add all symbol libraries
+    for name in "${!symbol_libraries[@]}"; do
+      add_symbol_lib "$name" "${symbol_libraries[$name]}"
+    done
+fi
+
+# Check if footprint library is set
+if [[ -n $INPUT_FOOTPRINT_LIBRARIES ]]; then
+    # Parse footprint libraries
+    declare -A footprint_libraries
+    IFS=',' read -ra footprint_pairs <<< "$INPUT_FOOTPRINT_LIBRARIES"
+    for pair in "${footprint_pairs[@]}"; do
+      name="${pair%%=*}"
+      path="${pair#*=}"
+      footprint_libraries["$name"]="$path"
+    done
+
+    # Loop through and add all footprint libraries
+    for name in "${!footprint_libraries[@]}"; do
+      add_footprint_lib "$name" "${footprint_libraries[$name]}"
+    done
 fi
 
 # Run schematic outputs

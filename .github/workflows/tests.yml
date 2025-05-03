@@ -69,34 +69,47 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_name: ["erc-failure", "erc-success", "drc-failure", "drc-success"]
+        test_name:
+          [
+            "erc-failure",
+            "erc-failure-no-lib",
+            "erc-success",
+            "drc-failure",
+            "drc-failure-no-lib",
+            "drc-success",
+          ]
         include:
           - test_name: erc-failure
             erc: true
-            drc: false
             schematic_file_name: tests/kicad-project-failure/kicad-project.kicad_sch
-            pcb_file_name: null
+            result: failure
+            expected_file: erc.rpt
+          - test_name: erc-failure-no-lib
+            erc: true
+            schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
             result: failure
             expected_file: erc.rpt
           - test_name: erc-success
             erc: true
-            drc: false
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
-            pcb_file_name: null
+            symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
+            footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
             result: success
             expected_file: erc.rpt
           - test_name: drc-failure
-            erc: false
             drc: true
-            schematic_file_name: null
             pcb_file_name: tests/kicad-project-failure/kicad-project.kicad_pcb
             result: failure
             expected_file: drc.rpt
-          - test_name: drc-success
-            erc: false
+          - test_name: drc-failure-no-lib
             drc: true
-            schematic_file_name: null
             pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            result: failure
+            expected_file: drc.rpt
+          - test_name: drc-success
+            drc: true
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
             result: success
             expected_file: drc.rpt
     steps:
@@ -105,13 +118,16 @@ jobs:
         id: check
         uses: ./
         with:
-          run_erc: ${{ matrix.erc }}
-          run_drc: ${{ matrix.drc }}
-          schematic_file_name: ${{ matrix.schematic_file_name }}
-          pcb_file_name: ${{ matrix.pcb_file_name }}
+          run_erc: ${{ matrix.erc || false }}
+          run_drc: ${{ matrix.drc || false }}
+          schematic_file_name: ${{ matrix.schematic_file_name || null }}
+          symbol_libraries: ${{ matrix.symbol_libraries || null }}
+          pcb_file_name: ${{ matrix.pcb_file_name || null }}
+          footprint_libraries: ${{ matrix.footprint_libraries || null }}
         continue-on-error: true
       - name: Verify ERC/DRC step result
         run: |
+          cat "${{ matrix.expected_file }}"
           if [[ "${{ matrix.result }}" == "failure" && "${{ steps.check.outcome }}" != "failure" ]]; then
             echo "::error::Expected failure, but step succeeded!"
             exit 1
@@ -200,6 +216,7 @@ jobs:
         uses: ./
         with:
           schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
+          symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
           ${{ matrix.output_flag }}: true
           schematic_output_black_white: ${{ matrix.schematic_output_black_white || false }}
           schematic_output_bom_fields: ${{ matrix.schematic_output_bom_fields || 'Reference,Value,Footprint,${QUANTITY},${DNP}' }}
@@ -317,6 +334,7 @@ jobs:
         uses: ./
         with:
           pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+          footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
           ${{ matrix.output_flag }}: true
           pcb_output_drill_format: ${{ matrix.pcb_output_drill_format || 'excellon' }}
           pcb_output_gerbers_format: ${{ matrix.pcb_output_gerbers_format || 'folder' }}
@@ -346,10 +364,12 @@ jobs:
         uses: ./
         with:
           schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
+          symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
           run_erc: true
           schematic_output_pdf: true
 
           pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+          footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
           run_drc: true
           pcb_output_gerbers_and_drill: true
           pcb_output_gerbers_and_drill_format: zip

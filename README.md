@@ -32,10 +32,12 @@ steps:
     uses: actions-for-kicad/kicad-actions@v1-k9.0
     with:
       schematic_file_name: ./file.kicad_sch
+      symbol_libraries: "symbol-library=./symbol-library.kicad_sym"
       run_erc: true
       schematic_output_pdf: true
 
       pcb_file_name: ./file.kicad_pcb
+      footprint_libraries: "footprint-library=./footprint-library.pretty"
       run_drc: true
       pcb_output_gerbers_and_drill: true
       pcb_output_gerbers_and_drill_format: zip
@@ -60,6 +62,12 @@ steps:
 Required: `False`\
 \
 Description: Location of the .kicad_sch file.
+
+## `symbol_libraries`
+
+Required: `False`\
+\
+Description: Comma-separated list of symbol libraries in the format name=path. The path should be relative to the `.kicad_pro` file.
 
 ## `run_erc`
 
@@ -199,6 +207,12 @@ Description: Output file name of the netlist.
 Required: `False`\
 \
 Description: Location of the .kicad_pcb file.
+
+## `footprint_libraries`
+
+Required: `False`\
+\
+Description: Comma-separated list of footprint libraries in the format name=path. The path should be relative to the `.kicad_pro` file.
 
 ## `run_drc`
 

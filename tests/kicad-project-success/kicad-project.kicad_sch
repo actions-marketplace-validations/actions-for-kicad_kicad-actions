@@ -895,6 +895,104 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "test-sym-library:Line"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Line_1_1"
+				(rectangle
+					(start -7.62 2.54)
+					(end 7.62 -2.54)
+					(stroke
+						(width 0)
+						(type solid)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -10.16 0 0)
+					(length 2.54)
+					(name "input"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 0 180)
+					(length 2.54)
+					(name "output"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
 	(junction
 		(at 115.57 91.44)
@@ -920,7 +1018,7 @@
 	)
 	(wire
 		(pts
-			(xy 167.64 97.79) (xy 170.18 97.79)
+			(xy 190.5 97.79) (xy 193.04 97.79)
 		)
 		(stroke
 			(width 0)
@@ -950,6 +1048,16 @@
 	)
 	(wire
 		(pts
+			(xy 170.18 97.79) (xy 167.64 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4f8c3eef-5202-485c-bfb7-2f5dd61b6f0c")
+	)
+	(wire
+		(pts
 			(xy 151.13 97.79) (xy 157.48 97.79)
 		)
 		(stroke
@@ -960,7 +1068,7 @@
 	)
 	(wire
 		(pts
-			(xy 170.18 97.79) (xy 170.18 100.33)
+			(xy 193.04 97.79) (xy 193.04 100.33)
 		)
 		(stroke
 			(width 0)
@@ -1411,6 +1519,73 @@
 		)
 	)
 	(symbol
+		(lib_id "test-sym-library:Line")
+		(at 180.34 97.79 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "be313346-e101-4ee4-bb9b-99e8db59d91f")
+		(property "Reference" "U101"
+			(at 180.34 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "~"
+			(at 180.34 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "test-fp-library:Line"
+			(at 180.34 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 180.34 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 180.34 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4e077f73-717e-4334-842d-074bda9f7053")
+		)
+		(pin "2"
+			(uuid "a2e819c5-8eaf-4877-937f-758d10fbc47d")
+		)
+		(instances
+			(project ""
+				(path "/1f7c97ad-5ffd-41dc-a255-91ef2d48b9f7"
+					(reference "U101")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:PWR_FLAG")
 		(at 115.57 104.14 90)
 		(unit 1)
@@ -1479,7 +1654,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 170.18 100.33 0)
+		(at 193.04 100.33 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1487,7 +1662,7 @@
 		(dnp no)
 		(uuid "efa16184-a90b-44b5-a29b-29633e4a4b9f")
 		(property "Reference" "#PWR0101"
-			(at 170.18 106.68 0)
+			(at 193.04 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1496,7 +1671,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 170.18 104.14 0)
+			(at 193.04 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1504,7 +1679,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 170.18 100.33 0)
+			(at 193.04 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1513,7 +1688,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 170.18 100.33 0)
+			(at 193.04 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1522,7 +1697,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 170.18 100.33 0)
+			(at 193.04 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
