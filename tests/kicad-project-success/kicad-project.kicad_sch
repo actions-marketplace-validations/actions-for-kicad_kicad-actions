@@ -1543,7 +1543,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:CP_Elec_3x5.3"
+		(property "Footprint" "test-fp-library:Line"
 			(at 180.34 97.79 0)
 			(effects
 				(font

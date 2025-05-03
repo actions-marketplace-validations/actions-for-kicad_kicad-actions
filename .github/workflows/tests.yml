@@ -69,61 +69,60 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_name: [
+        test_name:
+          [
             "erc-failure",
             "erc-failure-no-lib",
             "erc-success",
-            # "drc-failure",
-            # "drc-success",
+            "drc-failure",
+            "drc-failure-no-lib",
+            "drc-success",
           ]
         include:
           - test_name: erc-failure
             erc: true
-            drc: false
             schematic_file_name: tests/kicad-project-failure/kicad-project.kicad_sch
-            pcb_file_name: null
             result: failure
             expected_file: erc.rpt
           - test_name: erc-failure-no-lib
             erc: true
-            drc: false
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
-            pcb_file_name: null
             result: failure
             expected_file: erc.rpt
           - test_name: erc-success
-            symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
             erc: true
-            drc: false
             schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
-            pcb_file_name: null
+            symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
             result: success
             expected_file: erc.rpt
-          # - test_name: drc-failure
-          #   erc: false
-          #   drc: true
-          #   schematic_file_name: null
-          #   pcb_file_name: tests/kicad-project-failure/kicad-project.kicad_pcb
-          #   result: failure
-          #   expected_file: drc.rpt
-          # - test_name: drc-success
-          #   erc: false
-          #   drc: true
-          #   schematic_file_name: null
-          #   pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
-          #   result: success
-          #   expected_file: drc.rpt
+          - test_name: drc-failure
+            drc: true
+            pcb_file_name: tests/kicad-project-failure/kicad-project.kicad_pcb
+            result: failure
+            expected_file: drc.rpt
+          - test_name: drc-failure-no-lib
+            drc: true
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            result: failure
+            expected_file: drc.rpt
+          - test_name: drc-success
+            drc: true
+            pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+            footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
+            result: success
+            expected_file: drc.rpt
     steps:
       - uses: actions/checkout@v4
       - name: Run ERC/DRC check
         id: check
         uses: ./
         with:
-          run_erc: ${{ matrix.erc }}
-          run_drc: ${{ matrix.drc }}
-          schematic_file_name: ${{ matrix.schematic_file_name }}
-          pcb_file_name: ${{ matrix.pcb_file_name }}
+          run_erc: ${{ matrix.erc || false }}
+          run_drc: ${{ matrix.drc || false }}
+          schematic_file_name: ${{ matrix.schematic_file_name || null }}
           symbol_libraries: ${{ matrix.symbol_libraries || null }}
+          pcb_file_name: ${{ matrix.pcb_file_name || null }}
+          footprint_libraries: ${{ matrix.footprint_libraries || null }}
         continue-on-error: true
       - name: Verify ERC/DRC step result
         run: |
@@ -352,32 +351,34 @@ jobs:
   #         done
   #       shell: bash
 
-  # test-full-readme:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
+  test-full-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-  #     - name: Run KiCad actions
-  #       uses: ./
-  #       with:
-  #         schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
-  #         run_erc: true
-  #         schematic_output_pdf: true
+      - name: Run KiCad actions
+        uses: ./
+        with:
+          schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
+          symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
+          run_erc: true
+          schematic_output_pdf: true
 
-  #         pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
-  #         run_drc: true
-  #         pcb_output_gerbers_and_drill: true
-  #         pcb_output_gerbers_and_drill_format: zip
+          pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
+          footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
+          run_drc: true
+          pcb_output_gerbers_and_drill: true
+          pcb_output_gerbers_and_drill_format: zip
 
-  #     - name: Upload schematic
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: schematic.pdf
-  #         path: ./schematic.pdf
+      - name: Upload schematic
+        uses: actions/upload-artifact@v4
+        with:
+          name: schematic.pdf
+          path: ./schematic.pdf
 
-  #     - name: Upload gerbers and drill file
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: gerbers.zip
-  #         path: ./gerbers.zip
+      - name: Upload gerbers and drill file
+        uses: actions/upload-artifact@v4
+        with:
+          name: gerbers.zip
+          path: ./gerbers.zip

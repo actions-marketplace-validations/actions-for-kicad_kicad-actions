@@ -8,3 +8,4 @@ fp-info-cache
 *.rpt
 *.kicad_pcb.lck
 sym-lib-table
+fp-lib-table

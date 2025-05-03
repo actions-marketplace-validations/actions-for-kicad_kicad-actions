@@ -32,10 +32,12 @@ steps:
     uses: actions-for-kicad/kicad-actions@v1-k9.0
     with:
       schematic_file_name: ./file.kicad_sch
+      symbol_libraries: "symbol-library=./symbol-library.kicad_sym"
       run_erc: true
       schematic_output_pdf: true
 
       pcb_file_name: ./file.kicad_pcb
+      footprint_libraries: "footprint-library=./footprint-library.pretty"
       run_drc: true
       pcb_output_gerbers_and_drill: true
       pcb_output_gerbers_and_drill_format: zip
