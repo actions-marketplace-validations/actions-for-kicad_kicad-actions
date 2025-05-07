@@ -44,14 +44,14 @@ steps:
   - name: Upload schematic
     uses: actions/upload-artifact@v4
     with:
-      name: schematic.pdf
+      name: Schematic
       path: ./schematic.pdf
 
   - name: Upload gerbers and drill file
     uses: actions/upload-artifact@v4
     with:
-      name: gerbers.zip
-      path: ./gerbers.zip
+      name: Gerbers
+      path: ./gerbers
 ```
 
 # 📥 Inputs
