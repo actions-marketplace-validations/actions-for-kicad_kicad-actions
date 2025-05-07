@@ -364,13 +364,13 @@ jobs:
       - name: Upload schematic
         uses: actions/upload-artifact@v4
         with:
-          name: schematic.pdf
+          name: Schematic
           path: ./schematic.pdf
           if-no-files-found: error
 
       - name: Upload gerbers and drill file
         uses: actions/upload-artifact@v4
         with:
-          name: gerbers.zip
-          path: ./gerbers.zip
+          name: Gerbers
+          path: ./gerbers
           if-no-files-found: error
