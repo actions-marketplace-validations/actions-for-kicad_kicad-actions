@@ -138,10 +138,6 @@ inputs:
     description: "Output folder name of gerber files"
     default: "gerbers"
 
-  pcb_output_gerbers_format:
-    description: "Format of the gerber files. Options: folder, zip"
-    default: "folder"
-
   pcb_output_layers:
     description: "Output layers of the PCB"
 
@@ -153,10 +149,6 @@ inputs:
   pcb_output_gerbers_and_drill_folder_name:
     description: "Output folder name of gerber and drill files"
     default: "gerbers"
-
-  pcb_output_gerbers_and_drill_format:
-    description: "Format of the gerber and drill files. Options: folder, zip"
-    default: "folder"
 
   # Pcb DXF output
   pcb_output_dxf:

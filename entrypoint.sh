@@ -220,28 +220,13 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
 
   # Export PCB gerbers
   if [[ $INPUT_PCB_OUTPUT_GERBERS == "true" ]]; then
-    if [[ $INPUT_PCB_OUTPUT_GERBERS_FORMAT != "folder" && $INPUT_PCB_OUTPUT_GERBERS_FORMAT != "zip" ]]; then
-      echo "::error::Invalid gerbers and drill format. Supported formats are 'folder' and 'zip'."
-      exit 1
-    fi
-
     cmd=(kicad-cli pcb export gerbers --output "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME")
     [[ -n $INPUT_PCB_OUTPUT_LAYERS ]] && cmd+=(--layers "$INPUT_PCB_OUTPUT_LAYERS")
     "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
-
-    if [[ $INPUT_PCB_OUTPUT_GERBERS_FORMAT == "zip" ]]; then
-      zip -r "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME" -j "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME"
-      rm -rf "$INPUT_PCB_OUTPUT_GERBERS_FOLDER_NAME"
-    fi
   fi
 
   # Export PCB gerbers and drill
   if [[ $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL == "true" ]]; then
-    if [[ $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FORMAT != "folder" && $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FORMAT != "zip" ]]; then
-      echo "::error::Invalid gerbers and drill format. Supported formats are 'folder' and 'zip'."
-      exit 1
-    fi
-
     cmd=(kicad-cli pcb export gerbers --output "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME")
     [[ -n $INPUT_PCB_OUTPUT_LAYERS ]] && cmd+=(--layers "$INPUT_PCB_OUTPUT_LAYERS")
     "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
@@ -250,11 +235,6 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
       --output "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME" \
       --format "$INPUT_PCB_OUTPUT_DRILL_FORMAT" \
       "$INPUT_PCB_FILE_NAME"
-
-    if [[ $INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FORMAT == "zip" ]]; then
-      zip -r "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME" -j "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME"
-      rm -rf "$INPUT_PCB_OUTPUT_GERBERS_AND_DRILL_FOLDER_NAME"
-    fi
   fi
 
   # Export PCB DXF
