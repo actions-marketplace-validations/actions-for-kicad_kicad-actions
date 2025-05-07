@@ -238,10 +238,8 @@ jobs:
           [
             "drill-excellon",
             "drill-gerber",
-            "gerbers-folder",
-            "gerbers-zip",
-            "gerbers-drill-folder",
-            "gerbers-drill-zip",
+            "gerbers",
+            "gerbers-drill",
             "dxf",
             "pdf",
             "pdf-black-white",
@@ -262,18 +260,14 @@ jobs:
               "drill/kicad-project-PTH-drl.gbr"
               "drill/kicad-project-NPTH-drl.gbr"
             pcb_output_drill_format: gerber
-          - test_name: gerbers-folder
+          - test_name: gerbers
             output_flag: pcb_output_gerbers
             pcb_output_layers: F.Cu,F.Mask,F.SilkS
             expected_files: |
               "gerbers/kicad-project-F_Cu.gtl"
               "gerbers/kicad-project-F_Mask.gts"
               "gerbers/kicad-project-F_Silkscreen.gto"
-          - test_name: gerbers-zip
-            output_flag: pcb_output_gerbers
-            expected_files: gerbers.zip
-            pcb_output_gerbers_format: zip
-          - test_name: gerbers-drill-folder
+          - test_name: gerbers-drill
             output_flag: pcb_output_gerbers_and_drill
             pcb_output_layers: F.Cu,F.Mask,F.SilkS
             expected_files: |
@@ -281,10 +275,6 @@ jobs:
               "gerbers/kicad-project-F_Mask.gts"
               "gerbers/kicad-project-F_Silkscreen.gto"
               "gerbers/kicad-project.drl"
-          - test_name: gerbers-drill-zip
-            output_flag: pcb_output_gerbers_and_drill
-            expected_files: gerbers.zip
-            pcb_output_gerbers_and_drill_format: zip
           - test_name: dxf
             output_flag: pcb_output_dxf
             pcb_output_layers: F.Cu,F.Mask,F.SilkS
@@ -337,8 +327,6 @@ jobs:
           footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
           ${{ matrix.output_flag }}: true
           pcb_output_drill_format: ${{ matrix.pcb_output_drill_format || 'excellon' }}
-          pcb_output_gerbers_format: ${{ matrix.pcb_output_gerbers_format || 'folder' }}
-          pcb_output_gerbers_and_drill_format: ${{ matrix.pcb_output_gerbers_and_drill_format || 'folder' }}
           pcb_output_layers: ${{ matrix.pcb_output_layers || null }}
           pcb_output_black_white: ${{ matrix.pcb_output_black_white || false }}
           pcb_output_pos_format: ${{ matrix.pcb_output_pos_format || 'ascii' }}
@@ -364,24 +352,25 @@ jobs:
         uses: ./
         with:
           schematic_file_name: tests/kicad-project-success/kicad-project.kicad_sch
-          symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
+          symbol_libraries: test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym
           run_erc: true
           schematic_output_pdf: true
 
           pcb_file_name: tests/kicad-project-success/kicad-project.kicad_pcb
-          footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
+          footprint_libraries: test-fp-library=tests/kicad-project-success/test-fp-library.pretty
           run_drc: true
           pcb_output_gerbers_and_drill: true
-          pcb_output_gerbers_and_drill_format: zip
 
       - name: Upload schematic
         uses: actions/upload-artifact@v4
         with:
-          name: schematic.pdf
+          name: Schematic
           path: ./schematic.pdf
+          if-no-files-found: error
 
       - name: Upload gerbers and drill file
         uses: actions/upload-artifact@v4
         with:
-          name: gerbers.zip
-          path: ./gerbers.zip
+          name: Gerbers
+          path: ./gerbers
+          if-no-files-found: error

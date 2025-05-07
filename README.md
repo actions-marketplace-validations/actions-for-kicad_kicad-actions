@@ -40,19 +40,18 @@ steps:
       footprint_libraries: "footprint-library=./footprint-library.pretty"
       run_drc: true
       pcb_output_gerbers_and_drill: true
-      pcb_output_gerbers_and_drill_format: zip
 
   - name: Upload schematic
     uses: actions/upload-artifact@v4
     with:
-      name: schematic.pdf
+      name: Schematic
       path: ./schematic.pdf
 
   - name: Upload gerbers and drill file
     uses: actions/upload-artifact@v4
     with:
-      name: gerbers.zip
-      path: ./gerbers.zip
+      name: Gerbers
+      path: ./gerbers
 ```
 
 # 📥 Inputs
@@ -266,16 +265,6 @@ Default: `gerbers`\
 \
 Description: Output folder name of gerber files.
 
-## `pcb_output_gerbers_format`
-
-Required: `False`\
-Default: `folder`\
-\
-Description: Format of the gerber files. Options:
-
-- `folder`
-- `zip`
-
 ## `pcb_output_layers`
 
 Required: `False`\
@@ -295,16 +284,6 @@ Required: `False`\
 Default: `gerbers`\
 \
 Description: Output folder name of gerber and drill files.
-
-## `pcb_output_gerbers_and_drill_format`
-
-Required: `False`\
-Default: `folder`\
-\
-Description: Format of the gerber and drill files. Options:
-
-- `folder`
-- `zip`
 
 ## `pcb_output_dxf`
 
