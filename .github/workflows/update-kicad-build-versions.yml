@@ -25,6 +25,7 @@ jobs:
           python <<EOF
           import requests
           import re
+          import os
           from packaging.version import Version
 
           url = 'https://hub.docker.com/v2/repositories/kicad/kicad/tags?page_size=100'
