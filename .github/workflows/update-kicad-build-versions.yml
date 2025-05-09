@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
       - name: Get GitHub app token
         uses: actions/create-github-app-token@v2
         id: app-token
@@ -108,9 +113,9 @@ jobs:
       #         --head "$BRANCH_NAME" \
       #         --reviewer Nick-v-L
 
-      - name: Show token permissions
+      - name: Set up GitHub App authentication
         run: |
-          curl -I -H "Authorization: token ${{ steps.app-token.outputs.token }}" https://api.github.com/rate_limit
+          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
 
       - name: Create branch and pull request
         if: steps.check_missing.outputs.update_needed == 'true'
@@ -128,9 +133,12 @@ jobs:
           git add .github/workflows/build-kicad-versions.yml
           git commit -m "Add new KiCad versions to matrix"
 
+          echo "This works"
+
           # Push using GitHub App token over HTTPS
-          git remote set-url origin "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}"
           git push origin "$BRANCH_NAME"
+
+          echo "This does not work"
 
           # Optional: Use REST API instead of gh pr create if it fails
           gh pr create \
