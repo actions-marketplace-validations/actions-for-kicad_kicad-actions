@@ -57,7 +57,7 @@ jobs:
               key=lambda v: Version(v if '.' in v else f"{v}.0.0")
           )
 
-          echo f"Detected valid versions: {valid_versions}"
+          print(f"Detected valid versions: {valid_versions}")
 
           with open("versions.txt", "w") as f:
               for v in valid_versions:
