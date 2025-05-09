@@ -57,6 +57,8 @@ jobs:
               key=lambda v: Version(v if '.' in v else f"{v}.0.0")
           )
 
+          echo f"Detected valid versions: {valid_versions}"
+
           with open("versions.txt", "w") as f:
               for v in valid_versions:
                   f.write(v + "\n")
@@ -106,4 +108,4 @@ jobs:
             --head "$BRANCH_NAME" \
             --reviewer Nick-v-L
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
