@@ -89,6 +89,8 @@ jobs:
         if: steps.check_missing.outputs.update_needed == 'true'
         run: |
           echo "${{ steps.app-token.outputs.token }}" | gh auth login --with-token
+          gh api user --verbose
+
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           BRANCH_NAME="add-kicad-versions-$(date +%s)"
