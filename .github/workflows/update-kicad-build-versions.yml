@@ -113,39 +113,88 @@ jobs:
       #         --head "$BRANCH_NAME" \
       #         --reviewer Nick-v-L
 
-      - name: Set up GitHub App authentication
-        run: |
-          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+      #   - name: Set up GitHub App authentication
+      #     run: |
+      #       git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+
+      #   - name: Create branch and pull request
+      #     if: steps.check_missing.outputs.update_needed == 'true'
+      #     run: |
+      #       BRANCH_NAME="add-kicad-versions-$(date +%s)"
+      #       git checkout -b "$BRANCH_NAME"
+
+      #       for version in $(cat new_versions.txt); do
+      #       sed -i "/kicad_version:/,/]/ s/]/, \"${version}\"]/" .github/workflows/build-kicad-versions.yml
+      #       done
+
+      #       git add .github/workflows/build-kicad-versions.yml
+      #       git commit -m "Add new KiCad versions to matrix"
+
+      #       echo "This works"
+
+      #       # Push using GitHub App token over HTTPS
+      #       git push origin "$BRANCH_NAME"
+
+      #       echo "This does not work"
+
+      #       # Optional: Use REST API instead of gh pr create if it fails
+      #       gh pr create \
+      #       --title "Add new KiCad versions to matrix" \
+      #       --body "Automatically add the following KiCad versions: $(cat new_versions.txt | tr '\n' ' ')" \
+      #       --base main \
+      #       --head "$BRANCH_NAME" \
+      #       --reviewer Nick-v-L
 
       - name: Create branch and pull request
         if: steps.check_missing.outputs.update_needed == 'true'
         run: |
-          curl -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/actions-for-kicad/kicad-actions
-
-
           BRANCH_NAME="add-kicad-versions-$(date +%s)"
-          git checkout -b "$BRANCH_NAME"
+          BASE_BRANCH="main"
+          REPO_OWNER="${{ github.repository_owner }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}"
 
+          # 1. Create the branch by referencing the base branch (main)
+          SHA=$(curl -s -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/refs/heads/${BASE_BRANCH}" | jq -r '.object.sha')
+
+          curl -s -X POST -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${API_URL}/git/refs" \
+              -d "{\"ref\": \"refs/heads/${BRANCH_NAME}\", \"sha\": \"${SHA}\"}"
+
+          # 2. Modify the workflow file using the API
+          # First, read the file content
+          FILE_PATH=".github/workflows/build-kicad-versions.yml"
+          FILE_CONTENT=$(curl -s -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${API_URL}/contents/${FILE_PATH}" | jq -r '.content' | base64 --decode)
+
+          # Modify the content of the file (e.g., adding the new versions)
           for version in $(cat new_versions.txt); do
-          sed -i "/kicad_version:/,/]/ s/]/, \"${version}\"]/" .github/workflows/build-kicad-versions.yml
+          FILE_CONTENT=$(echo "$FILE_CONTENT" | sed "/kicad_version:/,/]/ s/]/, \"${version}\"]/")
           done
 
-          git add .github/workflows/build-kicad-versions.yml
-          git commit -m "Add new KiCad versions to matrix"
+          # Base64 encode the modified file content
+          MODIFIED_CONTENT=$(echo -n "$FILE_CONTENT" | base64)
 
-          echo "This works"
+          # Commit the change by updating the file content through the API
+          curl -X PUT -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${API_URL}/contents/${FILE_PATH}" \
+              -d "{\"message\":\"Add new KiCad versions to matrix\",\"committer\":{\"name\":\"GitHub Actions\",\"email\":\"actions@github.com\"},\"content\":\"${MODIFIED_CONTENT}\",\"branch\":\"${BRANCH_NAME}\"}"
 
-          # Push using GitHub App token over HTTPS
-          git push origin "$BRANCH_NAME"
+          # 3. Create a pull request using the GitHub API
+          PR_TITLE="Add new KiCad versions to matrix"
+          PR_BODY="Automatically add the following KiCad versions: $(cat new_versions.txt | tr '\n' ' ')"
 
-          echo "This does not work"
-
-          # Optional: Use REST API instead of gh pr create if it fails
-          gh pr create \
-          --title "Add new KiCad versions to matrix" \
-          --body "Automatically add the following KiCad versions: $(cat new_versions.txt | tr '\n' ' ')" \
-          --base main \
-          --head "$BRANCH_NAME" \
-          --reviewer Nick-v-L
+          curl -X POST -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${API_URL}/pulls" \
+              -d "{\"title\":\"${PR_TITLE}\", \"body\":\"${PR_BODY}\", \"head\":\"${BRANCH_NAME}\", \"base\":\"${BASE_BRANCH}\", \"reviewers\":[\"Nick-v-L\"]}"
