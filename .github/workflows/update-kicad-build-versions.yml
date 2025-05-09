@@ -120,8 +120,10 @@ jobs:
       - name: Create branch and pull request
         if: steps.check_missing.outputs.update_needed == 'true'
         run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          curl -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/actions-for-kicad/kicad-actions
+
 
           BRANCH_NAME="add-kicad-versions-$(date +%s)"
           git checkout -b "$BRANCH_NAME"
