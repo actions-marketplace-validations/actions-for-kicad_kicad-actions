@@ -85,28 +85,53 @@ jobs:
             echo "${missing_versions[@]}" > new_versions.txt
           fi
 
+      #   - name: Create branch and pull request
+      #     if: steps.check_missing.outputs.update_needed == 'true'
+      #     run: |
+      #       git config --global user.name "${{ github.actor }}"
+      #       git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      #       BRANCH_NAME="add-kicad-versions-$(date +%s)"
+      #       git checkout -b "$BRANCH_NAME"
+
+      #       for version in $(cat new_versions.txt); do
+      #         sed -i "/kicad_version:/,/]/ s/]/, \"${version}\"]/" .github/workflows/build-kicad-versions.yml
+      #       done
+
+      #       git add .github/workflows/build-kicad-versions.yml
+      #       git commit -m "Add new KiCad versions to matrix"
+      #       git push origin "$BRANCH_NAME"
+
+      #       gh pr create \
+      #         --title "Add new KiCad versions to matrix" \
+      #         --body "Automatically add the following KiCad versions: $(cat new_versions.txt | tr '\n' ' ')" \
+      #         --base main \
+      #         --head "$BRANCH_NAME" \
+      #         --reviewer Nick-v-L
+
       - name: Create branch and pull request
         if: steps.check_missing.outputs.update_needed == 'true'
         run: |
-          echo "${{ steps.app-token.outputs.token }}" | gh auth login --with-token
-          gh api user --verbose
-
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
           BRANCH_NAME="add-kicad-versions-$(date +%s)"
           git checkout -b "$BRANCH_NAME"
 
           for version in $(cat new_versions.txt); do
-            sed -i "/kicad_version:/,/]/ s/]/, \"${version}\"]/" .github/workflows/build-kicad-versions.yml
+          sed -i "/kicad_version:/,/]/ s/]/, \"${version}\"]/" .github/workflows/build-kicad-versions.yml
           done
 
           git add .github/workflows/build-kicad-versions.yml
           git commit -m "Add new KiCad versions to matrix"
+
+          # Push using GitHub App token over HTTPS
+          git remote set-url origin "https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}"
           git push origin "$BRANCH_NAME"
 
+          # Optional: Use REST API instead of gh pr create if it fails
           gh pr create \
-            --title "Add new KiCad versions to matrix" \
-            --body "Automatically add the following KiCad versions: $(cat new_versions.txt | tr '\n' ' ')" \
-            --base main \
-            --head "$BRANCH_NAME" \
-            --reviewer Nick-v-L
+          --title "Add new KiCad versions to matrix" \
+          --body "Automatically add the following KiCad versions: $(cat new_versions.txt | tr '\n' ' ')" \
+          --base main \
+          --head "$BRANCH_NAME" \
+          --reviewer Nick-v-L
