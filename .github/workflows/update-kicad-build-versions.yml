@@ -5,11 +5,6 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-  workflows: write
-
 jobs:
   check-kicad-versions:
     runs-on: ubuntu-latest
@@ -23,8 +18,8 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Fetch latest valid KiCad version
-        id: fetch_version
+      - name: Fetch KiCad versions
+        id: fetch_versions
         run: |
           pip install requests packaging
           python <<EOF
@@ -37,49 +32,56 @@ jobs:
           response = requests.get(url).json()
           tags = [tag['name'] for tag in response['results']]
 
-          # Keep only versions like 9.0.1, 9.1.0, etc. and skip anything starting with 8
-          valid_versions = [
-              t for t in tags
-              if re.fullmatch(r'\d+\.\d+\.\d+', t) and not t.startswith("8")
-          ]
-          versions = sorted(valid_versions, key=Version)
+          valid_versions = sorted(
+              [t for t in tags if re.fullmatch(r'\d+\.\d+\.\d+', t) and not t.startswith("8")],
+              key=Version
+          )
 
-          latest = versions[-1]
-          print(f"Latest valid KiCad version: {latest}")
-
-          with open(os.environ['GITHUB_ENV'], 'a') as f:
-              f.write(f"LATEST_KICAD_VERSION={latest}\n")
+          with open("versions.txt", "w") as f:
+              for v in valid_versions:
+                  f.write(v + "\n")
           EOF
 
-      - name: Check if version exists in workflow matrix
-        id: check_exists
+      - name: Compare and filter missing versions
+        id: check_missing
         run: |
-          if grep -q "\"${{ env.LATEST_KICAD_VERSION }}\"" .github/workflows/build-kicad-versions.yml; then
-            echo "Version already exists in matrix"
+          existing_versions=$(grep -oP '"\K\d+\.\d+\.\d+(?=")' .github/workflows/build-kicad-versions.yml | sort)
+          missing_versions=()
+
+          while read -r version; do
+            if ! grep -q "\"$version\"" .github/workflows/build-kicad-versions.yml; then
+              missing_versions+=("$version")
+            fi
+          done < versions.txt
+
+          if [ ${#missing_versions[@]} -eq 0 ]; then
+            echo "No new versions to add"
             echo "update_needed=false" >> $GITHUB_OUTPUT
           else
-            echo "New version found"
+            echo "New versions to add: ${missing_versions[*]}"
             echo "update_needed=true" >> $GITHUB_OUTPUT
+            echo "${missing_versions[@]}" > new_versions.txt
           fi
 
       - name: Create branch and pull request
-        if: steps.check_exists.outputs.update_needed == 'true'
+        if: steps.check_missing.outputs.update_needed == 'true'
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          BRANCH_NAME="add-kicad-${LATEST_KICAD_VERSION}"
+          BRANCH_NAME="add-kicad-versions-$(date +%s)"
           git checkout -b "$BRANCH_NAME"
 
-          # Add new version to matrix
-          sed -i "/kicad_version:/,/]/ s/]/, \"${LATEST_KICAD_VERSION}\"]/" .github/workflows/build-kicad-versions.yml
+          for version in $(cat new_versions.txt); do
+            sed -i "/kicad_version:/,/]/ s/]/, \"${version}\"]/" .github/workflows/build-kicad-versions.yml
+          done
 
           git add .github/workflows/build-kicad-versions.yml
-          git commit -m "Add KiCad version ${LATEST_KICAD_VERSION} to matrix"
+          git commit -m "Add new KiCad versions to matrix"
           git push origin "$BRANCH_NAME"
 
           gh pr create \
-            --title "Add KiCad version ${LATEST_KICAD_VERSION}" \
-            --body "Automatically add KiCad version ${LATEST_KICAD_VERSION} to the GitHub Actions matrix." \
+            --title "Add new KiCad versions to matrix" \
+            --body "Automatically add the following KiCad versions: $(cat new_versions.txt | tr '\n' ' ')" \
             --base main \
             --head "$BRANCH_NAME" \
             --reviewer Nick-v-L
