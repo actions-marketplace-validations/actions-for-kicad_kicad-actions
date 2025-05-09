@@ -10,6 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get GitHub app token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -26,15 +34,25 @@ jobs:
           import requests
           import re
           import os
-          from packaging.version import Version
+          from packaging.version import Version, InvalidVersion
 
           url = 'https://hub.docker.com/v2/repositories/kicad/kicad/tags?page_size=100'
           response = requests.get(url).json()
           tags = [tag['name'] for tag in response['results']]
 
+          def is_valid(tag):
+              # Match major, major.minor, or major.minor.patch
+              if not re.fullmatch(r'\d+(\.\d+){0,2}', tag):
+                  return False
+              try:
+                  version = Version(tag if '.' in tag else f"{tag}.0.0")
+                  return version.major >= 8
+              except InvalidVersion:
+                  return False
+
           valid_versions = sorted(
-              [t for t in tags if re.fullmatch(r'\d+\.\d+\.\d+', t) and not t.startswith("8")],
-              key=Version
+              filter(is_valid, tags),
+              key=lambda v: Version(v if '.' in v else f"{v}.0.0")
           )
 
           with open("versions.txt", "w") as f:
@@ -86,4 +104,4 @@ jobs:
             --head "$BRANCH_NAME" \
             --reviewer Nick-v-L
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
