@@ -108,6 +108,10 @@ jobs:
       #         --head "$BRANCH_NAME" \
       #         --reviewer Nick-v-L
 
+      - name: Show token permissions
+        run: |
+          curl -I -H "Authorization: token ${{ steps.app-token.outputs.token }}" https://api.github.com/rate_limit
+
       - name: Create branch and pull request
         if: steps.check_missing.outputs.update_needed == 'true'
         run: |
