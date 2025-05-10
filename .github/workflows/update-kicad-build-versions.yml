@@ -16,11 +16,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch current KiCad versions from repo
+      - name: Fetch current KiCad versions from matrix
         id: repo_versions
         run: |
-          awk '/kicad_version:/ {found=1; next} found && /\[.*\]/ {gsub(/[\[\]"]/,""); gsub(/, */, "\n"); print; exit}' .github/workflows/build-kicad-versions.yml > repo_versions.txt
-          echo "Current KiCad versions in repo: $(cat repo_versions.txt)"
+          awk '/matrix:/ {found=1} found && /kicad_version:/ {in_versions=1; next} in_versions {
+            if ($0 ~ /^\s*-/) {
+              gsub(/- /, "", $0);
+              gsub(/"/, "", $0);
+              print $0;
+            } else if ($0 !~ /^\s+/) {
+              exit
+            }
+          }' .github/workflows/build-kicad-versions.yml > repo_versions.txt
+
+          echo "Current KiCad versions in repo:"
+          cat repo_versions.txt
 
       - name: Fetch Docker tags and filter
         id: docker_versions
@@ -46,7 +56,7 @@ jobs:
         if: steps.compare.outputs.has_new_versions == 'true'
         run: |
           title="New KiCad version(s) detected"
-          body="New KiCad docker version(s) are available:<br>$(cat missing_versions.txt)<br>Please update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
+          body="New KiCad docker version(s) are available:<br>$(cat missing_versions.txt)<br><br>Please update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
 
           # Try to find an open issue with the same title
           issue_number=$(gh issue list --state open --search "$title" --json number,title | jq -r '.[] | select(.title == "'"$title"'") | .number')
