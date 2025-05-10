@@ -19,8 +19,7 @@ jobs:
       - name: Fetch current KiCad versions from repo
         id: repo_versions
         run: |
-          versions=$(grep -oP '(?<=kicad_version:\s*\[)[^]]+' .github/workflows/build-kicad-versions.yml | tr -d '" ' | tr ',' '\n')
-          echo "$versions" > repo_versions.txt
+          awk '/kicad_version:/ {found=1; next} found && /\[.*\]/ {gsub(/[\[\]"]/,""); gsub(/, */, "\n"); print; exit}' .github/workflows/build-kicad-versions.yml > repo_versions.txt
 
       - name: Fetch Docker tags and filter
         id: docker_versions
@@ -36,17 +35,16 @@ jobs:
         run: |
           missing=$(comm -23 <(sort docker_versions.txt) <(sort repo_versions.txt))
           echo "$missing" > missing_versions.txt
-          echo "Missing versions:"
-          cat missing_versions.txt
+
+          # Set output for next step condition
+          echo "has_new_versions=$( [ -s missing_versions.txt ] && echo true || echo false )" >> $GITHUB_OUTPUT
 
       - name: Create GitHub issue if new versions found
-        if: success() && steps.compare.outputs.missing != ''
+        if: steps.compare.outputs.has_new_versions == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -s missing_versions.txt ]; then
-            body="New KiCad Docker version(s) are available:\n\n\`\`\`\n$(cat missing_versions.txt)\n\`\`\`\n\nPlease update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
-            gh issue create --title "New KiCad version(s) detected" \
-                            --body "$body" \
-                            --label "update,automation"
-          fi
+          body="New KiCad Docker version(s) are available:\n\n\`\`\`\n$(cat missing_versions.txt)\n\`\`\`\n\nPlease update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
+          gh issue create --title "New KiCad version(s) detected" \
+                          --body "$body" \
+                          --label "update,automation"
