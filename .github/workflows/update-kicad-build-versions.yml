@@ -20,6 +20,7 @@ jobs:
         id: repo_versions
         run: |
           awk '/kicad_version:/ {found=1; next} found && /\[.*\]/ {gsub(/[\[\]"]/,""); gsub(/, */, "\n"); print; exit}' .github/workflows/build-kicad-versions.yml > repo_versions.txt
+          echo "Current KiCad versions in repo: $(cat repo_versions.txt)"
 
       - name: Fetch Docker tags and filter
         id: docker_versions
@@ -34,7 +35,9 @@ jobs:
         id: compare
         run: |
           missing=$(comm -23 <(sort docker_versions.txt) <(sort repo_versions.txt))
-          echo "- $missing<br>" > missing_versions.txt
+          formatted=$(echo "$missing" | awk '{ printf "\"%s\", ", $0 }' | sed 's/, $//')
+          echo "\`$formatted\`" > missing_versions.txt
+
 
           # Set output for next step condition
           echo "has_new_versions=$( [ -s missing_versions.txt ] && echo true || echo false )" >> $GITHUB_OUTPUT
@@ -43,7 +46,7 @@ jobs:
         if: steps.compare.outputs.has_new_versions == 'true'
         run: |
           title="New KiCad version(s) detected"
-          body="New KiCad docker version(s) are available:<br>$(cat missing_versions.txt)<br><br>Please update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
+          body="New KiCad docker version(s) are available:<br>$(cat missing_versions.txt)<br>Please update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
 
           # Try to find an open issue with the same title
           issue_number=$(gh issue list --state open --search "$title" --json number,title | jq -r '.[] | select(.title == "'"$title"'") | .number')
