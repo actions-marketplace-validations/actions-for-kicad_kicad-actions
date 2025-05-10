@@ -16,14 +16,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Get GitHub app token
-        uses: actions/create-github-app-token@v2
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
       - name: Extract Version from tag and create branch name
         run: |
           git config --global user.name "${{ github.actor }}"
@@ -61,5 +53,3 @@ jobs:
           MAIN_VERSION_TAG="v$(echo ${{ env.action_version }} | grep -oE '^[0-9]+')-k${{ matrix.kicad_version }}"
           git tag -f $MAIN_VERSION_TAG
           git push -f origin $MAIN_VERSION_TAG
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}

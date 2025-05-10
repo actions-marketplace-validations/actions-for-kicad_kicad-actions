@@ -39,7 +39,7 @@ jobs:
           curl -s "https://hub.docker.com/v2/repositories/kicad/kicad/tags?page_size=100" \
           | jq -r '.results[].name' \
           | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?$' \
-          | awk -F. '$1 >= 8' \
+          | awk -F. '$1 >= 9' \
           | sort -Vr > docker_versions.txt
 
       - name: Compare versions and find new ones
