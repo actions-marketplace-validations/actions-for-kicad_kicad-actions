@@ -46,18 +46,21 @@ jobs:
         id: compare
         run: |
           missing=$(comm -23 <(sort docker_versions.txt) <(sort repo_versions.txt))
-          formatted=$(echo "$missing" | awk '{ printf "\"%s\", ", $0 }' | sed 's/, $//')
-          echo "\`$formatted\`" > missing_versions.txt
 
-
-          # Set output for next step condition
-          echo "has_new_versions=$( [ -s missing_versions.txt ] && echo true || echo false )" >> $GITHUB_OUTPUT
+          if [ -n "$missing" ]; then
+            formatted=$(echo "$missing" | awk '{ printf "\"%s\", ", $0 }' | sed 's/, $//')
+            echo "$formatted" > missing_versions.txt
+            echo "has_new_versions=true" >> $GITHUB_OUTPUT
+          else
+            echo "No new versions found."
+            echo "has_new_versions=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create GitHub issue if new versions found
         if: steps.compare.outputs.has_new_versions == 'true'
         run: |
           title="New KiCad version(s) detected"
-          body="New KiCad docker version(s) are available:<br>$(cat missing_versions.txt)<br><br>Please update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
+          body="New KiCad docker version(s) are available:<br>\`$(cat missing_versions.txt)\`<br><br>Please update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
 
           # Try to find an open issue with the same title
           issue_number=$(gh issue list --state open --search "$title" --json number,title | jq -r '.[] | select(.title == "'"$title"'") | .number')

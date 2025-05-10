@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        kicad_version: ["8.0", "9.0", "9.0.0", "9.0.1", "9.0.2"]
+        kicad_version: ["8.0", "9.0", "9.0.1", "9.0.2"]
 
     steps:
       - name: Checkout Repository
@@ -53,3 +53,5 @@ jobs:
           MAIN_VERSION_TAG="v$(echo ${{ env.action_version }} | grep -oE '^[0-9]+')-k${{ matrix.kicad_version }}"
           git tag -f $MAIN_VERSION_TAG
           git push -f origin $MAIN_VERSION_TAG
+        env:
+          GH_TOKEN: ${{ github.token }}
