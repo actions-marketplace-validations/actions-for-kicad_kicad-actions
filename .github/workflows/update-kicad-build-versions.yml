@@ -148,6 +148,9 @@ jobs:
       - name: Create branch and pull request
         if: steps.check_missing.outputs.update_needed == 'true'
         run: |
+
+
+
           BRANCH_NAME="add-kicad-versions-$(date +%s)"
           BASE_BRANCH="main"
           REPO_OWNER="${{ github.repository_owner }}"
@@ -166,28 +169,41 @@ jobs:
               "${API_URL}/git/refs" \
               -d "{\"ref\": \"refs/heads/${BRANCH_NAME}\", \"sha\": \"${SHA}\"}"
 
-          # 2. Modify the workflow file using the API
-          # First, read the file content
-          FILE_PATH=".github/workflows/build-kicad-versions.yml"
-          FILE_CONTENT=$(curl -s -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "${API_URL}/contents/${FILE_PATH}" | jq -r '.content' | base64 --decode)
+            # Read and modify the file
+            FILE_PATH=".github/workflows/build-kicad-versions.yml"
+            ORIGINAL=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$API_URL/contents/${FILE_PATH}?ref=$BRANCH_NAME")
 
-          # Modify the content of the file (e.g., adding the new versions)
-          for version in $(cat new_versions.txt); do
-          FILE_CONTENT=$(echo "$FILE_CONTENT" | sed "/kicad_version:/,/]/ s/]/, \"${version}\"]/")
-          done
+            SHA=$(echo "$ORIGINAL" | jq -r .sha)
+            CONTENT=$(echo "$ORIGINAL" | jq -r .content | base64 --decode)
 
-          # Base64 encode the modified file content
-          MODIFIED_CONTENT=$(echo -n "$FILE_CONTENT" | base64)
+            # Modify the file content
+            for version in $(cat new_versions.txt); do
+            CONTENT=$(echo "$CONTENT" | sed "/kicad_version:/,/]/ s/]/, \"${version}\"]/")
+            done
 
-          # Commit the change by updating the file content through the API
-          curl -X PUT -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "${API_URL}/contents/${FILE_PATH}" \
-              -d "{\"message\":\"Add new KiCad versions to matrix\",\"committer\":{\"name\":\"GitHub Actions\",\"email\":\"actions@github.com\"},\"content\":\"${MODIFIED_CONTENT}\",\"branch\":\"${BRANCH_NAME}\"}"
+            # Base64 encode and escape properly
+            ENCODED_CONTENT=$(printf "%s" "$CONTENT" | base64 | tr -d '\n')
+
+            # Send PUT request
+            curl -X PUT -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$API_URL/contents/${FILE_PATH}" \
+            -d @- <<EOF
+            {
+            "message": "Add new KiCad versions to matrix",
+            "content": "${ENCODED_CONTENT}",
+            "sha": "${SHA}",
+            "branch": "${BRANCH_NAME}",
+            "committer": {
+                "name": "GitHub Actions",
+                "email": "actions@github.com"
+            }
+            }
+            EOF
 
           # 3. Create a pull request using the GitHub API
           PR_TITLE="Add new KiCad versions to matrix"
