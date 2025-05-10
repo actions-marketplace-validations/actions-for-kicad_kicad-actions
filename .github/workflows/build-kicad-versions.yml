@@ -53,3 +53,5 @@ jobs:
           MAIN_VERSION_TAG="v$(echo ${{ env.action_version }} | grep -oE '^[0-9]+')-k${{ matrix.kicad_version }}"
           git tag -f $MAIN_VERSION_TAG
           git push -f origin $MAIN_VERSION_TAG
+        env:
+          GH_TOKEN: ${{ github.token }}
