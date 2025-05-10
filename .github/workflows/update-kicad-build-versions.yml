@@ -47,4 +47,6 @@ jobs:
           body="New KiCad Docker version(s) are available:\n\n\`\`\`\n$(cat missing_versions.txt)\n\`\`\`\n\nPlease update the \`kicad_version\` array in \`.github/workflows/build-kicad-versions.yml\` accordingly."
           gh issue create --title "New KiCad version(s) detected" \
                           --body "$body" \
-                          --label "update,automation"
+                          --label "update" \
+                          --type "task" \
+                          --assignee Nick-v-L
