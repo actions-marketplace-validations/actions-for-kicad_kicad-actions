@@ -1,0 +1,81 @@
+name: Check for new KiCad versions
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  check-kicad-versions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Fetch latest valid KiCad version
+        id: fetch_version
+        run: |
+          pip install requests packaging
+          python <<EOF
+          import requests
+          import re
+          from packaging.version import Version
+
+          url = 'https://hub.docker.com/v2/repositories/kicad/kicad/tags?page_size=100'
+          response = requests.get(url).json()
+          tags = [tag['name'] for tag in response['results']]
+
+          # Keep only versions like 9.0.1, 9.1.0, etc. and skip anything starting with 8
+          valid_versions = [
+              t for t in tags
+              if re.fullmatch(r'\d+\.\d+\.\d+', t) and not t.startswith("8")
+          ]
+          versions = sorted(valid_versions, key=Version)
+
+          latest = versions[-1]
+          print(f"Latest valid KiCad version: {latest}")
+
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              f.write(f"LATEST_KICAD_VERSION={latest}\n")
+          EOF
+
+      - name: Check if version exists in workflow matrix
+        id: check_exists
+        run: |
+          if grep -q "\"${{ env.LATEST_KICAD_VERSION }}\"" .github/workflows/build-kicad-versions.yml; then
+            echo "Version already exists in matrix"
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "New version found"
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create branch and pull request
+        if: steps.check_exists.outputs.update_needed == 'true'
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          BRANCH_NAME="add-kicad-${LATEST_KICAD_VERSION}"
+          git checkout -b "$BRANCH_NAME"
+
+          # Add new version to matrix
+          sed -i "/kicad_version:/,/]/ s/]/, \"${LATEST_KICAD_VERSION}\"]/" .github/workflows/build-kicad-versions.yml
+
+          git add .github/workflows/build-kicad-versions.yml
+          git commit -m "Add KiCad version ${LATEST_KICAD_VERSION} to matrix"
+          git push origin "$BRANCH_NAME"
+
+          gh pr create \
+            --title "Add KiCad version ${LATEST_KICAD_VERSION}" \
+            --body "Automatically add KiCad version ${LATEST_KICAD_VERSION} to the GitHub Actions matrix." \
+            --base main \
+            --head "$BRANCH_NAME" \
+            --reviewer Nick-v-L
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
