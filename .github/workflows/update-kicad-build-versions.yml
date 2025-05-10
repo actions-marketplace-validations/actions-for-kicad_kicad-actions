@@ -48,5 +48,4 @@ jobs:
           gh issue create --title "New KiCad version(s) detected" \
                           --body "$body" \
                           --label "update" \
-                          --type "task" \
                           --assignee Nick-v-L
