@@ -45,6 +45,7 @@ steps:
       footprint_libraries: "footprint-library=./footprint-library.pretty"
       run_drc: true
       pcb_output_gerbers_and_drill: true
+      pcb_output_image: true
 
   - name: Upload schematic
     uses: actions/upload-artifact@v4
@@ -57,6 +58,12 @@ steps:
     with:
       name: Gerbers
       path: ./gerbers
+
+  - name: Upload image render
+    uses: actions/upload-artifact@v4
+    with:
+      name: Image render
+      path: ./pcb.png
 ```
 
 # 📥 Inputs
