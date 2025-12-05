@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run KiCad actions
         uses: ./
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run KiCad actions
         id: kicad_actions
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run KiCad actions
         id: kicad_actions
@@ -117,7 +117,7 @@ jobs:
             result: success
             expected_file: drc.rpt
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Run ERC/DRC check
         id: check
         uses: ./
@@ -213,7 +213,7 @@ jobs:
             expected_file: netlist.net
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run schematic output generation
         id: generate_output
@@ -262,6 +262,14 @@ jobs:
           - test_name: drill-excellon
             output_flag: pcb_output_drill
             expected_files: drill/kicad-project.drl
+          - test_name: drill-excellon-split
+            output_flag: pcb_output_drill
+            pcb_output_drill_split: true
+            expected_files: |
+              "drill/kicad-project-PTH.drl"
+              "drill/kicad-project-NPTH.drl"
+              "drill/kicad-project-PTH-drl_map.gbr"
+              "drill/kicad-project-NPTH-drl_map.gbr"
           - test_name: drill-gerber
             output_flag: pcb_output_drill
             expected_files: |
@@ -349,7 +357,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run schematic output generation
         id: generate_output
@@ -359,6 +367,7 @@ jobs:
           footprint_libraries: "test-fp-library=tests/kicad-project-success/test-fp-library.pretty"
           ${{ matrix.output_flag }}: true
           pcb_output_drill_format: ${{ matrix.pcb_output_drill_format || 'excellon' }}
+          pcb_output_drill_split: ${{ matrix.pcb_output_drill_split || false }}
           pcb_output_layers: ${{ matrix.pcb_output_layers || null }}
           pcb_output_black_white: ${{ matrix.pcb_output_black_white || false }}
           pcb_output_pos_format: ${{ matrix.pcb_output_pos_format || 'ascii' }}
@@ -384,7 +393,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run KiCad actions
         uses: ./
@@ -401,21 +410,21 @@ jobs:
           pcb_output_image: true
 
       - name: Upload schematic
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Schematic
           path: ./schematic.pdf
           if-no-files-found: error
 
       - name: Upload gerbers and drill file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Gerbers
           path: ./gerbers
           if-no-files-found: error
 
       - name: Upload image render
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Image render
           path: ./pcb.png
