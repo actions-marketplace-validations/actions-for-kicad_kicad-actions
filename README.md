@@ -19,7 +19,7 @@ For example `v1-k9.0`. This houses version one of this action and version `9.0` 
 
 The KiCad version can be set to the `minor` or `patch` version. For example:
 
-- Use `v{action-version}-k9.0` to to get the latest version of KiCad `v9.0` (for example `v9.0.2`).
+- Use `v{action-version}-k9.0` to to get the latest version of KiCad `v9.0` (for example `v9.0.7`).
 - Use `v{action-version}-k9.0.1` to to get the specific requested version of KiCad.
 
 Check the [releases](https://github.com/actions-for-kicad/kicad-actions/releases) to see all available versions.
@@ -481,6 +481,38 @@ Required: `false`\
 Default: `false`\
 \
 Description: Enables floor, shadows and post-processing.
+
+## `pcb_output_image_perspective`
+
+Required: `false`\
+Default: `false`\
+\
+Description: Enables perspective view.
+
+## `pcb_output_image_quality`
+
+Required: `false`\
+Default: `default`\
+\
+Description: Quality of the image PCB. Options:
+
+- `basic`
+- `high`
+- `user`
+
+## `pcb_output_image_zoom`
+
+Required: `false`\
+Default: `1.0`\
+\
+Description: Zoom factor of the image PCB.
+
+## `pcb_output_image_rotate`
+
+Required: `false`\
+Default: `0,0,0`\
+\
+Description: "Rotation of the image PCB. Format: 'x,y,z'."
 
 # 📤 Outputs
 
