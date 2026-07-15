@@ -2,7 +2,7 @@ name: Count action users
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 0 * * 0"
   workflow_dispatch:
 
 jobs:
@@ -19,5 +19,6 @@ jobs:
         with:
           target-directory: docs
           action-list: actions-for-kicad/kicad-actions
+          query-delay: 200
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
