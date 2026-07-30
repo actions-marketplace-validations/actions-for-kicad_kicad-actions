@@ -17,6 +17,12 @@ fi
 # Check if KiCad version is 8.0 or higher
 kicad_version=$(kicad-cli --version | grep -oP '\d+\.\d+')
 required_version="8.0"
+major_version=$(echo "$kicad_version" | cut -d. -f1)
+
+if [ "$major_version" = "8" ] || [ "$major_version" = "9" ]; then
+    echo "::warning::KiCad version $kicad_version is deprecated. Please upgrade to a newer version."
+fi
+
 config_dir="$HOME/.config/kicad/$kicad_version"
 symbol_lib_path="$config_dir/sym-lib-table"
 footprint_lib_path="$config_dir/fp-lib-table"
@@ -72,6 +78,34 @@ add_footprint_lib() {
 $entry
 " "$footprint_lib_path"
     echo "Symbol library '$name' added to fp-lib-table."
+  fi
+}
+
+find_project_file() {
+  if [[ -n "$INPUT_PROJECT_FILE_NAME" ]]; then
+    if [ ! -f "$INPUT_PROJECT_FILE_NAME" ]; then
+      echo "::error::Project file '$INPUT_PROJECT_FILE_NAME' not found."
+      exit 1
+    fi
+    project_file_name="$INPUT_PROJECT_FILE_NAME"
+  else
+    # Find project file in working directory
+    shopt -s nullglob
+    local candidates=( *.kicad_pro )
+    shopt -u nullglob
+    case "${#candidates[@]}" in
+      0)
+        echo "::error::project_file_name not specified, and no .kicad_pro file found."
+        exit 1
+        ;;
+      1)
+        project_file_name="${candidates[0]}"
+        ;;
+      *)
+        echo "::error::project_file_name not specified, and multiple .kicad_pro files found."
+        exit 1
+        ;;
+    esac
   fi
 }
 
@@ -145,6 +179,7 @@ if [[ -n $INPUT_SCHEMATIC_FILE_NAME ]]; then
   if [[ $INPUT_SCHEMATIC_OUTPUT_PDF == "true" ]]; then
     cmd=(kicad-cli sch export pdf --output "$INPUT_SCHEMATIC_OUTPUT_PDF_FILE_NAME")
     [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    [[ -n $INPUT_SCHEMATIC_OUTPUT_PAGES ]] && cmd+=(--pages "$INPUT_SCHEMATIC_OUTPUT_PAGES")
     "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
   fi
 
@@ -152,6 +187,7 @@ if [[ -n $INPUT_SCHEMATIC_FILE_NAME ]]; then
   if [[ $INPUT_SCHEMATIC_OUTPUT_SVG == "true" ]]; then
     cmd=(kicad-cli sch export svg --output "$INPUT_SCHEMATIC_OUTPUT_SVG_FOLDER_NAME")
     [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    [[ -n $INPUT_SCHEMATIC_OUTPUT_PAGES ]] && cmd+=(--pages "$INPUT_SCHEMATIC_OUTPUT_PAGES")
     "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
   fi
 
@@ -159,13 +195,7 @@ if [[ -n $INPUT_SCHEMATIC_FILE_NAME ]]; then
   if [[ $INPUT_SCHEMATIC_OUTPUT_DXF == "true" ]]; then
     cmd=(kicad-cli sch export dxf --output "$INPUT_SCHEMATIC_OUTPUT_DXF_FOLDER_NAME")
     [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
-    "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
-  fi
-
-  # Export schematic to HPGL
-  if [[ $INPUT_SCHEMATIC_OUTPUT_HPGL == "true" ]]; then
-    cmd=(kicad-cli sch export hpgl --output "$INPUT_SCHEMATIC_OUTPUT_HPGL_FOLDER_NAME")
-    [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    [[ -n $INPUT_SCHEMATIC_OUTPUT_PAGES ]] && cmd+=(--pages "$INPUT_SCHEMATIC_OUTPUT_PAGES")
     "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
   fi
 
@@ -173,6 +203,7 @@ if [[ -n $INPUT_SCHEMATIC_FILE_NAME ]]; then
   if [[ $INPUT_SCHEMATIC_OUTPUT_PS == "true" ]]; then
     cmd=(kicad-cli sch export ps --output "$INPUT_SCHEMATIC_OUTPUT_PS_FOLDER_NAME")
     [[ $INPUT_SCHEMATIC_OUTPUT_BLACK_WHITE == "true" ]] && cmd+=(--black-and-white)
+    [[ -n $INPUT_SCHEMATIC_OUTPUT_PAGES ]] && cmd+=(--pages "$INPUT_SCHEMATIC_OUTPUT_PAGES")
     "${cmd[@]}" "$INPUT_SCHEMATIC_FILE_NAME"
   fi
 
@@ -189,6 +220,14 @@ if [[ -n $INPUT_SCHEMATIC_FILE_NAME ]]; then
   if [[ $INPUT_SCHEMATIC_OUTPUT_NETLIST == "true" ]]; then
     kicad-cli sch export netlist \
       --output "$INPUT_SCHEMATIC_OUTPUT_NETLIST_FILE_NAME" \
+      "$INPUT_SCHEMATIC_FILE_NAME"
+  fi
+
+  # Export schematic XML netlist
+  if [[ $INPUT_SCHEMATIC_OUTPUT_XML_NETLIST == "true" ]]; then
+    kicad-cli sch export netlist \
+      --format kicadxml \
+      --output "$INPUT_SCHEMATIC_OUTPUT_XML_NETLIST_FILE_NAME" \
       "$INPUT_SCHEMATIC_FILE_NAME"
   fi
 fi
@@ -400,6 +439,18 @@ if [[ -n $INPUT_PCB_FILE_NAME ]]; then
     [[ $INPUT_PCB_OUTPUT_IMAGE_FLOOR == "true" ]] && cmd+=(--floor)
     "${cmd[@]}" "$INPUT_PCB_FILE_NAME"
   fi
+fi
+
+# Run jobset
+if [[ -n $INPUT_JOBSET_FILE_NAME ]]; then
+  # Confirm that the file exists
+  if [ ! -f "$INPUT_JOBSET_FILE_NAME" ]; then
+    echo "::error::Jobset file '$INPUT_JOBSET_FILE_NAME' not found."
+    exit 1
+  fi
+
+  find_project_file
+  kicad-cli jobset run --file "$INPUT_JOBSET_FILE_NAME" "$project_file_name"
 fi
 
 # Return non-zero exit code for ERC or DRC violations

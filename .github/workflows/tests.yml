@@ -5,13 +5,11 @@ on:
     branches:
       - main
     paths-ignore:
-      - ".github/*.yml"
       - ".gitignore"
       - "LICENSE"
       - "**/*.md"
   pull_request:
     paths-ignore:
-      - ".github/*.yml"
       - ".gitignore"
       - "LICENSE"
       - "**/*.md"
@@ -21,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run KiCad actions
         uses: ./
@@ -30,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run KiCad actions
         id: kicad_actions
@@ -51,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run KiCad actions
         id: kicad_actions
@@ -117,7 +115,7 @@ jobs:
             result: success
             expected_file: drc.rpt
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Run ERC/DRC check
         id: check
         uses: ./
@@ -162,12 +160,12 @@ jobs:
             "svg-black-white",
             "dxf",
             "dxf-black-white",
-            "hpgl",
             "ps",
             "ps-black-white",
             "bom",
             "bom-custom",
             "netlist",
+            "netlist-xml",
           ]
         include:
           - test_name: pdf
@@ -177,6 +175,10 @@ jobs:
             output_flag: schematic_output_pdf
             expected_file: schematic.pdf
             schematic_output_black_white: true
+          - test_name: pdf-one-page
+            output_flag: schematic_output_pdf
+            schematic_output_pages: 1
+            expected_file: schematic.pdf
           - test_name: svg
             output_flag: schematic_output_svg
             expected_file: schematics/kicad-project.svg
@@ -191,9 +193,6 @@ jobs:
             output_flag: schematic_output_dxf
             expected_file: schematics/kicad-project.dxf
             schematic_output_black_white: true
-          - test_name: hpgl
-            output_flag: schematic_output_hpgl
-            expected_file: schematics/kicad-project.plt
           - test_name: ps
             output_flag: schematic_output_ps
             expected_file: schematics/kicad-project.ps
@@ -211,9 +210,12 @@ jobs:
           - test_name: netlist
             output_flag: schematic_output_netlist
             expected_file: netlist.net
+          - test_name: netlist-xml
+            output_flag: schematic_output_xml_netlist
+            expected_file: netlist.xml
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run schematic output generation
         id: generate_output
@@ -223,6 +225,7 @@ jobs:
           symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
           ${{ matrix.output_flag }}: true
           schematic_output_black_white: ${{ matrix.schematic_output_black_white || false }}
+          schematic_output_pages: ${{ matrix.schematic_output_pages }}
           schematic_output_bom_fields: ${{ matrix.schematic_output_bom_fields || 'Reference,Value,Footprint,${QUANTITY},${DNP}' }}
 
       - name: Verify output file
@@ -371,7 +374,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run schematic output generation
         id: generate_output
@@ -411,7 +414,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run KiCad actions
         uses: ./
@@ -428,22 +431,66 @@ jobs:
           pcb_output_image: true
 
       - name: Upload schematic
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
-          name: Schematic
           path: ./schematic.pdf
+          archive: false
           if-no-files-found: error
 
       - name: Upload gerbers and drill file
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Gerbers
           path: ./gerbers
           if-no-files-found: error
 
       - name: Upload image render
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
-          name: Image render
           path: ./pcb.png
+          archive: false
           if-no-files-found: error
+
+  test-jobset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Run jobset
+        uses: ./
+        with:
+          symbol_libraries: "test-sym-library=tests/kicad-project-success/test-sym-library.kicad_sym"
+          jobset_file_name: tests/kicad-project-success/kicad-project.kicad_jobset
+          project_file_name: tests/kicad-project-success/kicad-project.kicad_pro
+
+      - name: Verify output file
+        run: |
+          if [[ ! -f jobset_out/erc.rpt ]]; then
+            echo "::error::Expected output file 'jobset_out/erc.rpt' not found!"
+            exit 1
+          fi
+        shell: bash
+
+  test-jobset-detect-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Move project files to CWD
+        run: mv tests/kicad-project-success/* .
+
+      - name: Run jobset (detect project file)
+        uses: ./
+        with:
+          symbol_libraries: "test-sym-library=test-sym-library.kicad_sym"
+          jobset_file_name: kicad-project.kicad_jobset
+
+      - name: Verify output file
+        run: |
+          if [[ ! -f jobset_out/erc.rpt ]]; then
+            echo "::error::Expected output file 'jobset_out/erc.rpt' not found!"
+            exit 1
+          fi
+        shell: bash

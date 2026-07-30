@@ -1,3 +1,9 @@
+![Count of Action Users](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/actions-for-kicad/kicad-actions/refs/heads/gh-pages/docs/kicad-actions.json)
+![Release](https://img.shields.io/github/v/release/actions-for-kicad/kicad-actions)
+![License](https://img.shields.io/github/license/actions-for-kicad/kicad-actions)
+![Workflow Status](https://img.shields.io/github/actions/workflow/status/actions-for-kicad/kicad-actions/tests.yml?branch=main&label=tests)
+![Open Issues](https://img.shields.io/github/issues/actions-for-kicad/kicad-actions)
+
 # KiCad actions
 
 This GitHub Action provides a way to run [KiCad](https://www.kicad.org/) in your CI pipelines.
@@ -15,12 +21,12 @@ The releases are formatted as follows:
 v{action-version}-k{KiCad-version}
 ```
 
-For example `v1-k9.0`. This houses version one of this action and version `9.0` from KiCad.
+For example `v2-k10.0`. This houses version `2` of this action and version `10.0` from KiCad.
 
 The KiCad version can be set to the `minor` or `patch` version. For example:
 
-- Use `v{action-version}-k9.0` to to get the latest version of KiCad `v9.0` (for example `v9.0.7`).
-- Use `v{action-version}-k9.0.1` to to get the specific requested version of KiCad.
+- Use `v{action-version}-k10.0` to to get the latest version of KiCad `v10.0` (for example `v10.0.2`).
+- Use `v{action-version}-k10.0.0` to to get the specific requested version of KiCad.
 
 Check the [releases](https://github.com/actions-for-kicad/kicad-actions/releases) to see all available versions.
 
@@ -31,10 +37,10 @@ See [action.yml](action.yml)
 ```yaml
 steps:
   - name: Checkout Repository
-    uses: actions/checkout@v4
+    uses: actions/checkout@v6
 
   - name: Run KiCad actions
-    uses: actions-for-kicad/kicad-actions@v1-k9.0
+    uses: actions-for-kicad/kicad-actions@v2-k10.0
     with:
       schematic_file_name: ./file.kicad_sch
       symbol_libraries: "symbol-library=./symbol-library.kicad_sym"
@@ -48,25 +54,32 @@ steps:
       pcb_output_image: true
 
   - name: Upload schematic
-    uses: actions/upload-artifact@v4
+    uses: actions/upload-artifact@v7
     with:
-      name: Schematic
       path: ./schematic.pdf
+      archive: false
 
   - name: Upload gerbers and drill file
-    uses: actions/upload-artifact@v4
+    uses: actions/upload-artifact@v7
     with:
       name: Gerbers
       path: ./gerbers
 
   - name: Upload image render
-    uses: actions/upload-artifact@v4
+    uses: actions/upload-artifact@v7
     with:
-      name: Image render
       path: ./pcb.png
+      archive: false
 ```
 
 # 📥 Inputs
+
+## `project_file_name`
+
+Required: `false`\
+\
+Description: The project file, used for running a jobset. Not required if there
+is a single `.kicad_pro` file in the working directory.
 
 ## `schematic_file_name`
 
@@ -108,6 +121,12 @@ Default: `schematic.pdf`\
 \
 Description: Output file name of PDF schematic.
 
+## `schematic_output_pages`
+
+Required: `false`\
+\
+Description: Comma-separated list of schematic pages to include in exports.
+
 ## `schematic_output_black_white`
 
 Required: `false`\
@@ -142,20 +161,6 @@ Required: `false`\
 Default: `schematics`\
 \
 Description: Output folder name of DXF schematic.
-
-## `schematic_output_hpgl`
-
-Required: `false`\
-Default: `false`\
-\
-Description: Run the HPGL export of the schematic.
-
-## `schematic_output_hpgl_folder_name`
-
-Required: `false`\
-Default: `schematics`\
-\
-Description: Output folder name of HPGL schematic.
 
 ## `schematic_output_ps`
 
@@ -212,6 +217,21 @@ Required: `false`\
 Default: `netlist.net`\
 \
 Description: Output file name of the netlist.
+
+## `schematic_output_xml_netlist`
+
+Required: `false`\
+Default: `false`\
+\
+Description: Run the netlist export of the schematic, in XML format for further
+processing.
+
+## `schematic_output_xml_netlist_file_name`
+
+Required: `false`\
+Default: `netlist.xml`\
+\
+Description: Output file name of the XML netlist.
 
 ## `pcb_file_name`
 
@@ -513,6 +533,12 @@ Required: `false`\
 Default: `0,0,0`\
 \
 Description: "Rotation of the image PCB. Format: 'x,y,z'."
+
+## `jobset_file_name`
+
+Required: `false`\
+\
+Description: Run a predefined KiCad jobset file.
 
 # 📤 Outputs
 

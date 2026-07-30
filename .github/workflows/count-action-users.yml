@@ -1,0 +1,24 @@
+name: Count action users
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: gh-pages
+
+      - name: Generate user count JSON endpoint
+        uses: cicirello/count-action-users@v1
+        with:
+          target-directory: docs
+          action-list: actions-for-kicad/kicad-actions
+          query-delay: 200
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

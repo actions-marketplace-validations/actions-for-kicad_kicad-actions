@@ -5,6 +5,10 @@ branding:
   color: "green"
 
 inputs:
+  # Project file
+  project_file_name:
+    description: "The project file, used for running a jobset. Not required if there is a single `.kicad_pro` file in the working directory."
+
   # Schematic input file
   schematic_file_name:
     description: "Location of the '.kicad_sch' file."
@@ -35,6 +39,9 @@ inputs:
     description: "Run the PDF, SVG, DXF and PS schematic export in black and white."
     default: false
 
+  schematic_output_pages:
+    description: "Comma-separated list of schematic pages to include in exports."
+
   # Schematic SVG output
   schematic_output_svg:
     description: "Run the SVG export of the schematic."
@@ -51,15 +58,6 @@ inputs:
 
   schematic_output_dxf_folder_name:
     description: "Output folder name of DXF schematic."
-    default: "schematics"
-
-  # Schematic HPGL output
-  schematic_output_hpgl:
-    description: "Run the HPGL export of the schematic."
-    default: false
-
-  schematic_output_hpgl_folder_name:
-    description: "Output folder name of HPGL schematic."
     default: "schematics"
 
   # Schematic PS output
@@ -96,6 +94,15 @@ inputs:
   schematic_output_netlist_file_name:
     description: "Output file name of the netlist."
     default: "netlist.net"
+
+  # Schematic netlist output (XML format)
+  schematic_output_xml_netlist:
+    description: "Run the XML netlist export of the schematic."
+    default: false
+
+  schematic_output_xml_netlist_file_name:
+    description: "Output file name of the XML netlist."
+    default: "netlist.xml"
 
   # PCB input file
   pcb_file_name:
@@ -262,6 +269,10 @@ inputs:
   pcb_output_image_rotate:
     description: "Rotation of the image PCB. Format: 'x,y,z'."
     default: "0,0,0"
+
+  # Jobset
+  jobset_file_name:
+    description: "Run a predefined KiCad jobset file."
 
 runs:
   using: "docker"
